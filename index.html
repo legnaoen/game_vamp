@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survivor's Night - 뱀파이어 서바이버 스타일 게임</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 게임 메뉴 -->
+        <div id="gameMenu" class="menu">
+            <h1>Survivor's Night</h1>
+            <p>생존하라! 밤이 깊어질수록 더욱 위험해집니다...</p>
+            <button id="startButton" class="btn">게임 시작</button>
+            <button id="helpButton" class="btn">도움말</button>
+            <div class="controls">
+                <h3>조작법</h3>
+                <p>WASD 또는 방향키: 이동</p>
+                <p>스페이스바: 대시</p>
+                <p>E키: 파이어볼 (특수공격)</p>
+                <p>R키: 체인 라이트닝 (특수공격)</p>
+                <p>ESC: 일시정지</p>
+            </div>
+        </div>
+
+        <!-- 게임 화면 -->
+        <div id="gameScreen" class="hidden">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <!-- 게임 내 UI -->
+            <div id="gameUI">
+                <div id="healthBar" class="ui-element">
+                    <span>체력:</span>
+                    <div class="bar">
+                        <div id="healthFill" class="fill"></div>
+                    </div>
+                    <span id="healthText">100/100</span>
+                </div>
+                
+                <div id="expBar" class="ui-element">
+                    <span>경험:</span>
+                    <div class="bar">
+                        <div id="expFill" class="fill"></div>
+                    </div>
+                    <span id="expText">레벨 1</span>
+                </div>
+                
+                <div id="gameInfo" class="ui-element">
+                    <span id="survivalTime">생존시간: 00:00</span>
+                    <span id="enemyCount">적 수: 0</span>
+                </div>
+            </div>
+
+            <!-- 일시정지 메뉴 -->
+            <div id="pauseMenu" class="menu hidden">
+                <h2>일시정지</h2>
+                <button id="resumeButton" class="btn">계속하기</button>
+                <button id="restartButton" class="btn">다시시작</button>
+                <button id="quitButton" class="btn">메인메뉴</button>
+            </div>
+        </div>
+
+        <!-- 게임오버 화면 -->
+        <div id="gameOverScreen" class="menu hidden">
+            <h2>게임 오버</h2>
+            <p id="finalStats"></p>
+            <button id="playAgainButton" class="btn">다시하기</button>
+            <button id="mainMenuButton" class="btn">메인메뉴</button>
+        </div>
+
+        <!-- 도움말 화면 -->
+        <div id="helpScreen" class="menu hidden">
+            <h2>도움말</h2>
+            <div class="help-content">
+                <h3>게임 목표</h3>
+                <p>가능한 오래 생존하며 적을 처치하여 경험치를 얻으세요.</p>
+                
+                <h3>게임플레이</h3>
+                <ul>
+                    <li>플레이어는 자동으로 근처 적을 공격합니다</li>
+                    <li>매직 에로우가 자동으로 발사되어 적을 유도 공격합니다</li>
+                    <li>E키로 파이어볼을 발사하여 범위 데미지를 줍니다</li>
+                    <li>R키로 체인 라이트닝을 발사하여 여러 적을 연쇄 공격합니다</li>
+                    <li>적과 접촉하면 체력이 감소합니다</li>
+                    <li>적을 처치하면 경험치를 얻습니다</li>
+                    <li>경험치로 레벨업하여 능력치를 향상시킵니다</li>
+                    <li>시간이 지날수록 더 많은 적이 나타납니다</li>
+                </ul>
+                
+                <h3>아이템</h3>
+                <ul>
+                    <li>경험치 획득 시 무작위 아이템을 얻습니다</li>
+                    <li>아이템은 공격력, 이동속도, 체력 등을 증가시킵니다</li>
+                    <li>같은 아이템은 중첩되어 더 강한 효과를 줍니다</li>
+                </ul>
+            </div>
+            <button id="backToMenuButton" class="btn">메인메뉴로</button>
+        </div>
+    </div>
+
+                <!-- 게임 스크립트 -->
+            <script src="js/core/game.js"></script>
+            <script src="js/core/gameLoop.js"></script>
+            <script src="js/core/input.js"></script>
+            <script src="js/entities/player.js"></script>
+            <script src="js/entities/enemy.js"></script>
+            <!-- 🆕 투사체 클래스들 -->
+            <script src="js/entities/projectiles/magicArrow.js"></script>
+            <script src="js/entities/projectiles/fireball.js"></script>
+            <script src="js/entities/projectiles/chainLightning.js"></script>
+            <script src="js/systems/collision.js"></script>
+            <script src="js/systems/spawn.js"></script>
+            <script src="js/systems/itemSystem.js"></script>
+            <script src="js/ui/hud.js"></script>
+            <script src="js/ui/menu.js"></script>
+            <script src="js/main.js"></script>
+</body>
+</html>
