@@ -27,8 +27,10 @@ function initGame() {
         // 게임 인스턴스 생성
         game = new Game();
         
-        // 모바일 컨트롤 초기화
-        if (window.deviceDetector && window.deviceDetector.isMobile()) {
+        // 모바일 컨트롤 초기화 (안전한 타입 체크)
+        if (window.deviceDetector && 
+            typeof window.deviceDetector.isMobile === 'function' && 
+            window.deviceDetector.isMobile()) {
             game.mobileControls = new MobileControls(game);
             console.log('모바일 터치 컨트롤이 활성화되었습니다.');
         }

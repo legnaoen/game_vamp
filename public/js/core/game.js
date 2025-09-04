@@ -27,6 +27,9 @@ class Game {
         this.hud = null;
         this.menu = null;
         
+        // 모바일 컨트롤
+        this.mobileControls = null;
+        
         // 게임 설정
         this.config = {
             canvasWidth: 800,
