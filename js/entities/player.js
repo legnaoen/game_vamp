@@ -575,14 +575,15 @@ class Player {
             
             // 🆕 타겟이 있으면 타겟 방향으로 발사
             if (targetEnemy) {
+                // 🆕 레벨에 따른 데미지 강화 (레벨당 5% 증가)
+                const levelDamageBonus = 1 + (this.level - 1) * 0.05;
+                
                 // 타겟을 향한 방향 계산
                 const dx = targetEnemy.x - this.x;
                 const dy = targetEnemy.y - this.y;
                 const angle = Math.atan2(dy, dx);
                 console.log(`파이어볼 발사! 타겟: ${targetEnemy.type}, 방향: ${(angle * 180 / Math.PI).toFixed(1)}도, 범위: ${fireballRange.toFixed(1)}, 레벨 ${this.level} 데미지 강화: ${(levelDamageBonus * 100 - 100).toFixed(1)}%`);
                 
-                // 🆕 레벨에 따른 데미지 강화 (레벨당 5% 증가)
-                const levelDamageBonus = 1 + (this.level - 1) * 0.05;
                 const enhancedDamage = this.getCurrentAttackDamage() * magic.damage * levelDamageBonus;
                 
                 const projectile = new FireballProjectile(
@@ -791,10 +792,8 @@ class Player {
         else if (this.level >= 5) magic.magicArrow.arrowCount = 2;
         else magic.magicArrow.arrowCount = 1;
         
-        // 🆕 체인 라이트닝 체인 수 증가
-        if (this.level >= 20) magic.chainLightning.maxChains = 7;
-        else if (this.level >= 10) magic.chainLightning.maxChains = 5;
-        else magic.chainLightning.maxChains = 3;
+        // 🆕 체인 라이트닝 체인 수 증가 (레벨업마다 +1씩 증가)
+        magic.chainLightning.maxChains = 3 + (this.level - 1);
         
         console.log(`마법 능력치 업데이트: 화살 ${magic.magicArrow.arrowCount}개, 체인 ${magic.chainLightning.maxChains}개`);
     }

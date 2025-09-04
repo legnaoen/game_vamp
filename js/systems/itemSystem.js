@@ -155,7 +155,7 @@ class ItemSystem {
                     player.applyItemEffect({
                         effectType: stat,
                         effectValue: finalValue,
-                        effectDuration: 30 // 기본 지속시간
+                        effectDuration: 10 // 기본 지속시간
                     });
                 });
                 
