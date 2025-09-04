@@ -499,6 +499,11 @@ class Game {
         
         // 화면 효과 복원
         this.restoreScreenEffects();
+        
+        // 모바일 컨트롤 렌더링 (모바일에서만)
+        if (this.mobileControls && this.mobileControls.isActive) {
+            this.mobileControls.render();
+        }
     }
     
     /**

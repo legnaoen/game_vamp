@@ -16,11 +16,18 @@
             <button id="helpButton" class="btn">도움말</button>
             <div class="controls">
                 <h3>조작법</h3>
-                <p>WASD 또는 방향키: 이동</p>
-                <p>스페이스바: 대시</p>
-                <p>E키: 파이어볼 (특수공격)</p>
-                <p>R키: 체인 라이트닝 (특수공격)</p>
-                <p>ESC: 일시정지</p>
+                <div id="desktopControls">
+                    <p>WASD 또는 방향키: 이동</p>
+                    <p>스페이스바: 대시</p>
+                    <p>E키: 파이어볼 (특수공격)</p>
+                    <p>R키: 체인 라이트닝 (특수공격)</p>
+                    <p>ESC: 일시정지</p>
+                </div>
+                <div id="mobileControls" class="hidden">
+                    <p>좌하단 조이스틱: 이동</p>
+                    <p>우하단 버튼들: 공격, 대시, 특수공격</p>
+                    <p>터치로 모든 조작 가능</p>
+                </div>
             </div>
         </div>
 
@@ -100,6 +107,8 @@
     </div>
 
                 <!-- 게임 스크립트 -->
+            <script src="js/core/deviceDetector.js"></script>
+            <script src="js/core/mobileControls.js"></script>
             <script src="js/core/game.js"></script>
             <script src="js/core/gameLoop.js"></script>
             <script src="js/core/input.js"></script>

@@ -229,8 +229,36 @@ body {
     display: none !important;
 }
 
+/* 모바일 컨트롤 스타일 */
+#mobileControls {
+    display: none;
+}
+
+#desktopControls {
+    display: block;
+}
+
+/* 모바일에서 데스크톱 컨트롤 숨기기 */
+@media (max-width: 768px) {
+    #desktopControls {
+        display: none;
+    }
+    
+    #mobileControls {
+        display: block;
+    }
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
+    body {
+        touch-action: none; /* 모바일에서 스크롤 방지 */
+        -webkit-user-select: none; /* 텍스트 선택 방지 */
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
     .menu {
         padding: 1.5rem;
         margin: 1rem;
@@ -248,6 +276,7 @@ body {
         width: 95%;
         height: auto;
         max-height: 80vh;
+        touch-action: none; /* 캔버스에서 터치 이벤트만 허용 */
     }
     
     .ui-element {
@@ -257,6 +286,17 @@ body {
     
     .ui-element span {
         font-size: 0.8rem;
+    }
+    
+    /* 모바일에서 UI 위치 조정 */
+    #gameUI {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .ui-element {
+        margin-bottom: 5px;
+        padding: 6px;
     }
 }
 

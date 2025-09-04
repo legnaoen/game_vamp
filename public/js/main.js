@@ -27,12 +27,28 @@ function initGame() {
         // 게임 인스턴스 생성
         game = new Game();
         
+        // 모바일 컨트롤 초기화
+        if (window.deviceDetector && window.deviceDetector.isMobile()) {
+            game.mobileControls = new MobileControls(game);
+            console.log('모바일 터치 컨트롤이 활성화되었습니다.');
+        }
+        
         console.log('게임 초기화 완료!');
         console.log('게임 상태:', game.gameState);
-        console.log('사용 가능한 조작법:');
-        console.log('- WASD 또는 방향키: 이동');
-        console.log('- 스페이스바: 대시');
-        console.log('- ESC: 일시정지/재개');
+        console.log('디바이스 타입:', window.deviceDetector ? window.deviceDetector.getDeviceInfo().type : 'unknown');
+        
+        // 디바이스별 조작법 안내
+        if (window.deviceDetector && window.deviceDetector.isMobile()) {
+            console.log('모바일 조작법:');
+            console.log('- 좌하단 조이스틱: 이동');
+            console.log('- 우하단 버튼들: 공격, 대시, 특수공격');
+        } else {
+            console.log('데스크톱 조작법:');
+            console.log('- WASD 또는 방향키: 이동');
+            console.log('- 스페이스바: 대시');
+            console.log('- E: 파이어볼, R: 체인 라이트닝');
+            console.log('- ESC: 일시정지/재개');
+        }
         
         // 성공 메시지 표시
         showSuccessMessage('게임이 성공적으로 로드되었습니다!');
