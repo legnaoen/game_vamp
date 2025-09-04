@@ -65,10 +65,10 @@ class ItemSystem {
         
         // 아이템 드롭 확률
         this.dropRates = {
-            common: 0.4,      // 일반 아이템 (40%)
-            uncommon: 0.3,    // 희귀 아이템 (30%)
-            rare: 0.2,        // 레어 아이템 (20%)
-            epic: 0.1         // 에픽 아이템 (10%)
+            common: 0.4,      // 일반 아이템 (40%) - 유지
+            uncommon: 0.15,   // 희귀 아이템 (15%) - 유지
+            rare: 0.05,       // 레어 아이템 (5%) - 10%에서 절반으로 감소
+            epic: 0.025       // 에픽 아이템 (2.5%) - 5%에서 절반으로 감소
         };
         
         // 아이템 등급별 효과 배율 (각 등급마다 0.1씩 누적)
@@ -251,9 +251,18 @@ class ItemSystem {
     selectRarity() {
         const random = Math.random();
         
-        if (random < this.dropRates.epic) return 'epic';
-        if (random < this.dropRates.epic + this.dropRates.rare) return 'rare';
-        if (random < this.dropRates.epic + this.dropRates.rare + this.dropRates.uncommon) return 'uncommon';
+        // 누적 확률 계산 (총 100%로 정규화)
+        const epicThreshold = this.dropRates.epic;
+        const rareThreshold = epicThreshold + this.dropRates.rare;
+        const uncommonThreshold = rareThreshold + this.dropRates.uncommon;
+        const commonThreshold = uncommonThreshold + this.dropRates.common;
+        
+        if (random < epicThreshold) return 'epic';
+        if (random < rareThreshold) return 'rare';
+        if (random < uncommonThreshold) return 'uncommon';
+        if (random < commonThreshold) return 'common';
+        
+        // 기본값으로 common 반환 (안전장치)
         return 'common';
     }
     
