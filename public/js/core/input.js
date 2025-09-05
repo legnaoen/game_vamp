@@ -17,6 +17,7 @@ class Input {
             Space: false,
             Escape: false,
             // 🆕 마법사 특수 공격 키
+            q: false, // 매직 애로우
             e: false, // 파이어볼
             r: false  // 체인 라이트닝
         };
@@ -79,7 +80,7 @@ class Input {
         }
         
         // 기본 동작 방지 (스크롤 등)
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'e', 'r'].includes(key)) {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'q', 'e', 'r'].includes(key)) {
             e.preventDefault();
         }
     }
@@ -211,6 +212,13 @@ class Input {
      */
     isEscapePressed() {
         return this.keys.Escape;
+    }
+    
+    /**
+     * 🆕 Q키가 눌려있는지 확인 (매직 애로우)
+     */
+    isQPressed() {
+        return this.keys.q;
     }
     
     /**

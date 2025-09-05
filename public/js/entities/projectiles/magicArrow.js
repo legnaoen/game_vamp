@@ -9,14 +9,14 @@ class MagicArrowProjectile {
         this.angle = angle;
         this.range = range;
         this.damage = damage;
-        this.speed = 200;
+        this.speed = 350; // 🆕 속도 증가 (200 → 350)
         this.lifetime = range / this.speed;
         this.maxLifetime = this.lifetime;
         
         // 🆕 유도 시스템
         this.isGuided = false;
         this.targetEnemy = null;
-        this.guideDelay = 0.1; // 0.1초 후 유도 시작
+        this.guideDelay = 0.02; // 🆕 거의 즉시 유도 시작 (0.1초 → 0.02초)
         
         // 🆕 시각적 효과
         this.size = 4;
@@ -46,7 +46,7 @@ class MagicArrowProjectile {
         
         // 🆕 유도 중일 때 타겟을 향해 방향 조정
         if (this.isGuided && this.targetEnemy) {
-            this.guideToTarget();
+            this.guideToTarget(deltaTime);
         }
         
         // 위치 업데이트
@@ -56,8 +56,22 @@ class MagicArrowProjectile {
         // 수명 감소
         this.lifetime -= deltaTime;
         
+        // 수명 종료 체크
+        if (this.lifetime <= 0) {
+            return false; // 투사체 제거
+        }
+        
+        // 화면 밖으로 나간 투사체 제거
+        if (this.x < -50 || this.x > 850 || this.y < -50 || this.y > 650) {
+            return false; // 화면 밖 투사체 제거
+        }
+        
         // 충돌 감지
-        this.checkCollisions(game);
+        if (this.checkCollisions(game)) {
+            return false; // 충돌 시 투사체 제거
+        }
+        
+        return true; // 투사체 계속 유지
     }
     
     /**
@@ -108,7 +122,7 @@ class MagicArrowProjectile {
     /**
      * 🆕 타겟을 향해 유도
      */
-    guideToTarget() {
+    guideToTarget(deltaTime) {
         if (!this.targetEnemy || this.targetEnemy.health <= 0) {
             this.targetEnemy = null;
             this.isGuided = false;
@@ -127,8 +141,8 @@ class MagicArrowProjectile {
         while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
         while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
         
-        // 🆕 부드러운 각도 전환 (최대 90도/초)
-        const maxRotation = Math.PI / 2 * deltaTime;
+        // 🆕 부드러운 각도 전환 (최대 270도/초)
+        const maxRotation = Math.PI * 1.5 * deltaTime;
         if (Math.abs(angleDiff) > maxRotation) {
             angleDiff = Math.sign(angleDiff) * maxRotation;
         }

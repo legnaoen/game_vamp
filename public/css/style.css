@@ -415,6 +415,16 @@ body {
     opacity: 1;
 }
 
+/* 매직 애로우 스킬 특별 스타일 */
+#magicArrowIcon {
+    background: linear-gradient(145deg, #00bcd4, #0097a7);
+}
+
+#magicArrowIcon.ready {
+    border-color: #00ffff;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
 /* 파이어볼 스킬 특별 스타일 */
 #fireballIcon {
     background: linear-gradient(145deg, #e74c3c, #c0392b);

@@ -424,7 +424,7 @@ function setupDeveloperTools() {
             const baseRange = game.player.getBaseAttackRange();
             
             for (let level = 1; level <= 20; level++) {
-                const bonus = (level - 1) * 0.05;
+                const bonus = (level - 1) * 0.03;
                 const range = baseRange * (1 + bonus);
                 const percent = (bonus * 100).toFixed(1);
                 console.log(`레벨 ${level}: ${range.toFixed(1)} (기본 ${baseRange} + ${percent}%)`);
@@ -476,11 +476,78 @@ function setupDeveloperTools() {
             const baseSpeed = game.player.getBaseAttackSpeed();
             
             for (let level = 1; level <= 20; level++) {
-                const bonus = (level - 1) * 0.02;
+                const bonus = (level - 1) * 0.03;
                 const finalSpeed = baseSpeed * (1 + bonus);
                 const attackInterval = (1.0 / finalSpeed).toFixed(3);
                 const percent = (bonus * 100).toFixed(1);
                 console.log(`레벨 ${level}: ${finalSpeed.toFixed(3)} (기본 ${baseSpeed} + ${percent}%) | 간격: ${attackInterval}초`);
+            }
+        },
+        
+        // 🆕 공격 개수 상세 정보
+        attackCount: () => {
+            if (!game || !game.player) return '게임이 실행 중이 아닙니다.';
+            
+            const level = game.player.level;
+            let attackDirections = 1;
+            if (level >= 18) attackDirections = 9;
+            else if (level >= 15) attackDirections = 8;
+            else if (level >= 12) attackDirections = 7;
+            else if (level >= 9) attackDirections = 6;
+            else if (level >= 7) attackDirections = 5;
+            else if (level >= 5) attackDirections = 4;
+            else if (level >= 3) attackDirections = 3;
+            else if (level >= 2) attackDirections = 2;
+            
+            console.log('🎯 공격 개수 정보:');
+            console.log(`현재 레벨: ${level}`);
+            console.log(`공격 개수: ${attackDirections}개`);
+            
+            // 다음 증가 레벨 안내
+            let nextLevel = null;
+            if (level < 2) nextLevel = 2;
+            else if (level < 3) nextLevel = 3;
+            else if (level < 5) nextLevel = 5;
+            else if (level < 7) nextLevel = 7;
+            else if (level < 9) nextLevel = 9;
+            else if (level < 12) nextLevel = 12;
+            else if (level < 15) nextLevel = 15;
+            else if (level < 18) nextLevel = 18;
+            
+            if (nextLevel) {
+                console.log(`다음 증가: 레벨 ${nextLevel}에서 ${attackDirections + 1}개`);
+            } else {
+                console.log('최대 공격 개수에 도달했습니다!');
+            }
+        },
+        
+        // 🆕 공격 개수 레벨별 테스트
+        testAttackCountLevels: () => {
+            if (!game || !game.player) {
+                console.log('게임이 실행 중이 아닙니다.');
+                return;
+            }
+            
+            console.log('🎯 공격 개수 레벨별 테스트:');
+            console.log('레벨 1-3: 1레벨당 증가');
+            console.log('레벨 4-9: 2레벨당 증가');
+            console.log('레벨 10-18: 3레벨당 증가');
+            console.log('---');
+            
+            for (let level = 1; level <= 20; level++) {
+                let attackDirections = 1;
+                if (level >= 18) attackDirections = 9;
+                else if (level >= 15) attackDirections = 8;
+                else if (level >= 12) attackDirections = 7;
+                else if (level >= 9) attackDirections = 6;
+                else if (level >= 7) attackDirections = 5;
+                else if (level >= 5) attackDirections = 4;
+                else if (level >= 3) attackDirections = 3;
+                else if (level >= 2) attackDirections = 2;
+                
+                const isUpgrade = (level === 2 || level === 3 || level === 5 || level === 7 || level === 9 || level === 12 || level === 15 || level === 18);
+                const marker = isUpgrade ? ' ⬆️' : '';
+                console.log(`레벨 ${level}: ${attackDirections}개${marker}`);
             }
         },
         
@@ -520,6 +587,9 @@ function setupDeveloperTools() {
             console.log('dev.attackSpeed() - 공격 속도 상세 정보');
             console.log('dev.setAttackSpeed(speed) - 기본 공격 속도 설정');
             console.log('dev.testAttackSpeedLevels() - 레벨별 공격 속도 테스트');
+            console.log('🎯 🆕 공격 개수 시스템 명령어:');
+            console.log('dev.attackCount() - 공격 개수 상세 정보');
+            console.log('dev.testAttackCountLevels() - 레벨별 공격 개수 테스트');
         }
     };
     

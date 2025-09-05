@@ -24,11 +24,11 @@ class Player {
         // 공격
         this.baseAttackRange = attackRange;  // 기본 공격 범위 (변경되지 않음)
         this.attackRange = attackRange;      // 현재 공격 범위 (레벨업으로 증가)
-        this.levelAttackRangeBonus = 0;      // 레벨업으로 인한 공격 범위 보너스 (0.05 = 5%)
+        this.levelAttackRangeBonus = 0;      // 레벨업으로 인한 공격 범위 보너스 (0.03 = 3%)
         this.attackDamage = attackDamage;
         this.baseAttackSpeed = 1.0;          // 기본 공격 속도 (변경되지 않음)
         this.attackSpeed = 1.0;              // 현재 공격 속도 (레벨업으로 증가)
-        this.levelAttackSpeedBonus = 0;      // 레벨업으로 인한 공격 속도 보너스 (0.02 = 2%)
+        this.levelAttackSpeedBonus = 0;      // 레벨업으로 인한 공격 속도 보너스 (0.03 = 3%)
         this.lastAttackTime = 0;
         
         // 경험치 및 레벨
@@ -280,10 +280,16 @@ class Player {
             return;
         }
         
-        // 🆕 2레벨 이상: 다중 방향 공격
-        let attackDirections = 2;
-        if (this.level >= 4) attackDirections = 4;
-        else if (this.level >= 3) attackDirections = 3;
+        // 🆕 2레벨 이상: 다중 방향 공격 (새로운 증가 체계)
+        let attackDirections = 1;
+        if (this.level >= 18) attackDirections = 9;        // 18레벨: 9개 (3레벨당 증가)
+        else if (this.level >= 15) attackDirections = 8;   // 15레벨: 8개 (3레벨당 증가)
+        else if (this.level >= 12) attackDirections = 7;   // 12레벨: 7개 (3레벨당 증가)
+        else if (this.level >= 9) attackDirections = 6;    // 9레벨: 6개 (2레벨당 증가)
+        else if (this.level >= 7) attackDirections = 5;    // 7레벨: 5개 (2레벨당 증가)
+        else if (this.level >= 5) attackDirections = 4;    // 5레벨: 4개 (2레벨당 증가)
+        else if (this.level >= 3) attackDirections = 3;    // 3레벨: 3개 (1레벨당 증가)
+        else if (this.level >= 2) attackDirections = 2;    // 2레벨: 2개 (1레벨당 증가)
         
         // 🆕 각 방향에서 서로 다른 적을 찾아서 공격
         this.executeMultiTargetAttack(attackDirections);
@@ -412,10 +418,16 @@ class Player {
             return;
         }
         
-        // 🆕 2레벨 이상: 스마트 파티클 생성
-        let attackDirections = 2;
-        if (this.level >= 4) attackDirections = 4;
-        else if (this.level >= 3) attackDirections = 3;
+        // 🆕 2레벨 이상: 스마트 파티클 생성 (새로운 증가 체계)
+        let attackDirections = 1;
+        if (this.level >= 18) attackDirections = 9;        // 18레벨: 9개 (3레벨당 증가)
+        else if (this.level >= 15) attackDirections = 8;   // 15레벨: 8개 (3레벨당 증가)
+        else if (this.level >= 12) attackDirections = 7;   // 12레벨: 7개 (3레벨당 증가)
+        else if (this.level >= 9) attackDirections = 6;    // 9레벨: 6개 (2레벨당 증가)
+        else if (this.level >= 7) attackDirections = 5;    // 7레벨: 5개 (2레벨당 증가)
+        else if (this.level >= 5) attackDirections = 4;    // 5레벨: 4개 (2레벨당 증가)
+        else if (this.level >= 3) attackDirections = 3;    // 3레벨: 3개 (1레벨당 증가)
+        else if (this.level >= 2) attackDirections = 2;    // 2레벨: 2개 (1레벨당 증가)
         
         // 🆕 공격 범위 내 적 확인
         const enemiesInRange = this.getEnemiesInRange();
@@ -532,8 +544,20 @@ class Player {
      * 🆕 매직 에로우 발사
      */
     fireMagicArrow() {
-        // 🆕 랜덤 방향으로 발사
-        const angle = Math.random() * Math.PI * 2;
+        // 🆕 스마트 방향으로 발사 (가장 가까운 적 기준 ±45도)
+        let angle;
+        const nearestEnemy = this.findNearestEnemyInRange();
+        
+        if (nearestEnemy) {
+            // 가장 가까운 적 방향 기준 ±45도 범위
+            const baseAngle = Math.atan2(nearestEnemy.y - this.y, nearestEnemy.x - this.x);
+            const randomOffset = (Math.random() - 0.5) * Math.PI / 2; // ±45도
+            angle = baseAngle + randomOffset;
+        } else {
+            // 적이 없으면 랜덤 방향
+            angle = Math.random() * Math.PI * 2;
+        }
+        
         const range = this.getCurrentAttackRange() * this.magicSystem.magicArrow.range;
         
         // 🆕 투사체 생성
@@ -699,14 +723,26 @@ class Player {
      * 🆕 특수 공격 처리
      */
     handleSpecialAttacks(input) {
+        // 🆕 input 객체 유효성 검사
+        if (!input) {
+            console.error('input 객체가 null 또는 undefined입니다.');
+            return;
+        }
+        
+        // 🆕 Q키: 매직 애로우
+        if (typeof input.isQPressed === 'function' && input.isQPressed()) {
+            console.log('Q키 입력 감지됨 - 매직 애로우 발사 시도');
+            this.handleMagicArrow();
+        }
+        
         // 🆕 E키: 파이어볼
-        if (input.isEPressed()) {
+        if (typeof input.isEPressed === 'function' && input.isEPressed()) {
             console.log('E키 입력 감지됨 - 파이어볼 발사 시도');
             this.fireFireball();
         }
         
         // 🆕 R키: 체인 라이트닝
-        if (input.isRPressed()) {
+        if (typeof input.isRPressed === 'function' && input.isRPressed()) {
             console.log('R키 입력 감지됨 - 체인 라이트닝 발사 시도');
             this.castChainLightning();
         }
@@ -766,14 +802,14 @@ class Player {
         this.attackDamage += 2;
         this.speed += 3;
         
-        // 🆕 공격 범위 증가 (레벨당 5%)
+        // 🆕 공격 범위 증가 (레벨당 3%)
         const oldRange = this.attackRange;
-        this.levelAttackRangeBonus = (this.level - 1) * 0.05; // 5%씩 누적
+        this.levelAttackRangeBonus = (this.level - 1) * 0.03; // 3%씩 누적
         this.attackRange = this.baseAttackRange * (1 + this.levelAttackRangeBonus);
         
-        // 🆕 공격 속도 증가 (레벨당 2%)
+        // 🆕 공격 속도 증가 (레벨당 3%)
         const oldSpeed = this.attackSpeed;
-        this.levelAttackSpeedBonus = (this.level - 1) * 0.02; // 2%씩 누적
+        this.levelAttackSpeedBonus = (this.level - 1) * 0.03; // 3%씩 누적
         this.attackSpeed = this.baseAttackSpeed * (1 + this.levelAttackSpeedBonus);
         
         // 🆕 증가 알림
@@ -1013,11 +1049,17 @@ class Player {
                 ctx.arc(this.x, this.y, this.getCurrentAttackRange() * scale, 0, Math.PI * 2);
                 ctx.stroke();
             }
-            // 🆕 2레벨 이상: 스마트 공격 범위
+            // 🆕 2레벨 이상: 스마트 공격 범위 (새로운 증가 체계)
             else {
-                let attackDirections = 2;
-                if (this.level >= 4) attackDirections = 4;
-                else if (this.level >= 3) attackDirections = 3;
+                let attackDirections = 1;
+                if (this.level >= 18) attackDirections = 9;        // 18레벨: 9개 (3레벨당 증가)
+                else if (this.level >= 15) attackDirections = 8;   // 15레벨: 8개 (3레벨당 증가)
+                else if (this.level >= 12) attackDirections = 7;   // 12레벨: 7개 (3레벨당 증가)
+                else if (this.level >= 9) attackDirections = 6;    // 9레벨: 6개 (2레벨당 증가)
+                else if (this.level >= 7) attackDirections = 5;    // 7레벨: 5개 (2레벨당 증가)
+                else if (this.level >= 5) attackDirections = 4;    // 5레벨: 4개 (2레벨당 증가)
+                else if (this.level >= 3) attackDirections = 3;    // 3레벨: 3개 (1레벨당 증가)
+                else if (this.level >= 2) attackDirections = 2;    // 2레벨: 2개 (1레벨당 증가)
                 
                 // 🆕 공격 범위 내 적 확인
                 const enemiesInRange = this.getEnemiesInRange();
@@ -1137,7 +1179,7 @@ class Player {
             if (!enemy || enemy.health <= 0) return;
             
             const distance = Math.sqrt(
-                Math.pow(this.x - enemy.x, 2) + 
+                Math.pow(this.x - enemy.x, 2) +
                 Math.pow(this.y - enemy.y, 2)
             );
             
@@ -1148,6 +1190,14 @@ class Player {
         });
         
         return closestEnemy;
+    }
+    
+    /**
+     * 🆕 공격 범위 내 가장 가까운 적 찾기 (매직애로우용)
+     */
+    findNearestEnemyInRange() {
+        const enemiesInRange = this.getEnemiesInRange();
+        return this.getClosestEnemy(enemiesInRange);
     }
     
     /**

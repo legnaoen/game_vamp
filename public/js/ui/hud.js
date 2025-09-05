@@ -13,6 +13,9 @@ class HUD {
             survivalTime: null,
             enemyCount: null,
             // 🆕 쿨타임 요소들
+            magicArrowIcon: null,
+            magicArrowCooldown: null,
+            magicArrowText: null,
             fireballIcon: null,
             fireballCooldown: null,
             fireballText: null,
@@ -38,6 +41,9 @@ class HUD {
         this.elements.enemyCount = document.getElementById('enemyCount');
         
         // 🆕 쿨타임 요소들 참조 가져오기
+        this.elements.magicArrowIcon = document.getElementById('magicArrowIcon');
+        this.elements.magicArrowCooldown = document.getElementById('magicArrowCooldown');
+        this.elements.magicArrowText = document.getElementById('magicArrowText');
         this.elements.fireballIcon = document.getElementById('fireballIcon');
         this.elements.fireballCooldown = document.getElementById('fireballCooldown');
         this.elements.fireballText = document.getElementById('fireballText');
@@ -223,6 +229,15 @@ class HUD {
      */
     updateSkillCooldowns(player) {
         if (!player.magicSystem) return;
+        
+        // 매직 애로우 쿨타임 업데이트
+        this.updateSkillCooldown(
+            'magicArrow',
+            player.magicSystem.magicArrow,
+            this.elements.magicArrowIcon,
+            this.elements.magicArrowCooldown,
+            this.elements.magicArrowText
+        );
         
         // 파이어볼 쿨타임 업데이트
         this.updateSkillCooldown(
@@ -478,6 +493,17 @@ class HUD {
         }
         
         // 🆕 스킬 쿨타임 리셋
+        if (this.elements.magicArrowIcon) {
+            this.elements.magicArrowIcon.classList.remove('cooldown');
+            this.elements.magicArrowIcon.classList.add('ready');
+        }
+        if (this.elements.magicArrowCooldown) {
+            this.elements.magicArrowCooldown.style.background = 'transparent';
+        }
+        if (this.elements.magicArrowText) {
+            this.elements.magicArrowText.style.opacity = '0';
+        }
+        
         if (this.elements.fireballIcon) {
             this.elements.fireballIcon.classList.remove('cooldown');
             this.elements.fireballIcon.classList.add('ready');
