@@ -22,9 +22,13 @@ class Player {
         this.healthRegen = 0; // 초당 체력 회복량
         
         // 공격
-        this.attackRange = attackRange;
+        this.baseAttackRange = attackRange;  // 기본 공격 범위 (변경되지 않음)
+        this.attackRange = attackRange;      // 현재 공격 범위 (레벨업으로 증가)
+        this.levelAttackRangeBonus = 0;      // 레벨업으로 인한 공격 범위 보너스 (0.05 = 5%)
         this.attackDamage = attackDamage;
-        this.attackSpeed = 1.0; // 초당 공격 횟수
+        this.baseAttackSpeed = 1.0;          // 기본 공격 속도 (변경되지 않음)
+        this.attackSpeed = 1.0;              // 현재 공격 속도 (레벨업으로 증가)
+        this.levelAttackSpeedBonus = 0;      // 레벨업으로 인한 공격 속도 보너스 (0.02 = 2%)
         this.lastAttackTime = 0;
         
         // 경험치 및 레벨
@@ -756,11 +760,27 @@ class Player {
         this.experience -= this.experienceToNext;
         this.experienceToNext = this.getExperienceForLevel(this.level + 1);
         
-        // 레벨업 보상
+        // 기존 레벨업 보상
         this.maxHealth += 10;
         this.health = this.maxHealth; // 체력 완전 회복
         this.attackDamage += 2;
         this.speed += 3;
+        
+        // 🆕 공격 범위 증가 (레벨당 5%)
+        const oldRange = this.attackRange;
+        this.levelAttackRangeBonus = (this.level - 1) * 0.05; // 5%씩 누적
+        this.attackRange = this.baseAttackRange * (1 + this.levelAttackRangeBonus);
+        
+        // 🆕 공격 속도 증가 (레벨당 2%)
+        const oldSpeed = this.attackSpeed;
+        this.levelAttackSpeedBonus = (this.level - 1) * 0.02; // 2%씩 누적
+        this.attackSpeed = this.baseAttackSpeed * (1 + this.levelAttackSpeedBonus);
+        
+        // 🆕 증가 알림
+        const rangeIncrease = ((this.attackRange - oldRange) / oldRange * 100).toFixed(1);
+        const speedIncrease = ((this.attackSpeed - oldSpeed) / oldSpeed * 100).toFixed(1);
+        console.log(`공격 범위 증가: ${oldRange.toFixed(1)} → ${this.attackRange.toFixed(1)} (+${rangeIncrease}%)`);
+        console.log(`공격 속도 증가: ${oldSpeed.toFixed(2)} → ${this.attackSpeed.toFixed(2)} (+${speedIncrease}%)`);
         
         // 레벨업 효과 (파티클 등)
         this.createLevelUpParticles();
@@ -1162,10 +1182,59 @@ class Player {
     }
     
     /**
-     * 현재 공격 범위 계산 (아이템 효과 포함)
+     * 현재 공격 범위 계산 (레벨업 보너스 + 아이템 효과)
      */
     getCurrentAttackRange() {
         return this.attackRange * this.stats.attackRange;
+    }
+    
+    /**
+     * 🆕 기본 공격 범위 반환 (레벨업 보너스 없음)
+     */
+    getBaseAttackRange() {
+        return this.baseAttackRange;
+    }
+    
+    /**
+     * 🆕 레벨업 보너스만 반환 (0.05 = 5%)
+     */
+    getLevelAttackRangeBonus() {
+        return this.levelAttackRangeBonus;
+    }
+    
+    /**
+     * 🆕 레벨업 보너스 퍼센트 반환
+     */
+    getLevelAttackRangeBonusPercent() {
+        return (this.levelAttackRangeBonus * 100).toFixed(1);
+    }
+    
+    /**
+     * 🆕 기본 공격 속도 반환 (레벨업 보너스 없음)
+     */
+    getBaseAttackSpeed() {
+        return this.baseAttackSpeed;
+    }
+    
+    /**
+     * 🆕 레벨업 공격속도 보너스만 반환 (0.02 = 2%)
+     */
+    getLevelAttackSpeedBonus() {
+        return this.levelAttackSpeedBonus;
+    }
+    
+    /**
+     * 🆕 레벨업 공격속도 보너스 퍼센트 반환
+     */
+    getLevelAttackSpeedBonusPercent() {
+        return (this.levelAttackSpeedBonus * 100).toFixed(1);
+    }
+    
+    /**
+     * 🆕 현재 공격 속도 계산 (레벨업 보너스 + 아이템 효과)
+     */
+    getCurrentAttackSpeed() {
+        return this.attackSpeed * this.stats.attackSpeed;
     }
     
     /**
@@ -1210,6 +1279,14 @@ class Player {
         this.dashCooldown = 0;
         this.dashDuration = 0;
         this.isDashing = false;
+        
+        // 🆕 공격 범위 초기화
+        this.attackRange = this.baseAttackRange;
+        this.levelAttackRangeBonus = 0;
+        
+        // 🆕 공격 속도 초기화
+        this.attackSpeed = this.baseAttackSpeed;
+        this.levelAttackSpeedBonus = 0;
         
         // 아이템 효과 초기화
         Object.keys(this.itemEffects).forEach(key => {

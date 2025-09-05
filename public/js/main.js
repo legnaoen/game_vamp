@@ -384,6 +384,106 @@ function setupDeveloperTools() {
             console.log('🧙‍♂️ 모든 마법 쿨다운이 리셋되었습니다!');
         },
         
+        // 🆕 공격 범위 관련 명령어
+        attackRange: () => {
+            if (!game || !game.player) return '게임이 실행 중이 아닙니다.';
+            
+            const player = game.player;
+            return {
+                base: player.getBaseAttackRange(),
+                current: player.getCurrentAttackRange(),
+                levelBonus: player.getLevelAttackRangeBonus(),
+                levelBonusPercent: player.getLevelAttackRangeBonusPercent(),
+                itemMultiplier: player.stats.attackRange,
+                level: player.level,
+                breakdown: {
+                    baseRange: player.getBaseAttackRange(),
+                    levelBonus: `${player.getLevelAttackRangeBonusPercent()}%`,
+                    itemMultiplier: `${((player.stats.attackRange - 1) * 100).toFixed(1)}%`,
+                    finalRange: player.getCurrentAttackRange()
+                }
+            };
+        },
+        
+        setAttackRange: (range) => {
+            if (game && game.player) {
+                game.player.baseAttackRange = range;
+                game.player.attackRange = range * (1 + game.player.levelAttackRangeBonus);
+                console.log(`기본 공격 범위를 ${range}로 설정`);
+                console.log(`현재 공격 범위: ${game.player.getCurrentAttackRange()}`);
+            }
+        },
+        
+        testAttackRangeLevels: () => {
+            if (!game || !game.player) {
+                console.log('게임이 실행 중이 아닙니다.');
+                return;
+            }
+            
+            console.log('🎯 공격 범위 레벨별 테스트:');
+            const baseRange = game.player.getBaseAttackRange();
+            
+            for (let level = 1; level <= 20; level++) {
+                const bonus = (level - 1) * 0.05;
+                const range = baseRange * (1 + bonus);
+                const percent = (bonus * 100).toFixed(1);
+                console.log(`레벨 ${level}: ${range.toFixed(1)} (기본 ${baseRange} + ${percent}%)`);
+            }
+        },
+        
+        // 🆕 공격 속도 상세 정보
+        attackSpeed: () => {
+            if (!game || !game.player) return '게임이 실행 중이 아닙니다.';
+            
+            const player = game.player;
+            const baseSpeed = player.getBaseAttackSpeed();
+            const levelBonus = player.getLevelAttackSpeedBonus();
+            const currentSpeed = player.attackSpeed;
+            const finalSpeed = player.getCurrentAttackSpeed();
+            const attackInterval = (1.0 / finalSpeed).toFixed(3);
+            
+            console.log('⚡ 공격 속도 정보:');
+            console.log(`기본 공격 속도: ${baseSpeed}`);
+            console.log(`레벨 보너스: +${(levelBonus * 100).toFixed(1)}% (${levelBonus.toFixed(3)})`);
+            console.log(`레벨 적용 속도: ${currentSpeed.toFixed(3)}`);
+            console.log(`아이템 배율: ${player.stats.attackSpeed}x`);
+            console.log(`최종 공격 속도: ${finalSpeed.toFixed(3)}`);
+            console.log(`공격 간격: ${attackInterval}초`);
+            console.log(`초당 공격 횟수: ${finalSpeed.toFixed(2)}회`);
+        },
+        
+        // 🆕 기본 공격 속도 설정
+        setAttackSpeed: (speed) => {
+            if (!game || !game.player) return '게임이 실행 중이 아닙니다.';
+            if (typeof speed !== 'number' || speed <= 0) return '올바른 공격 속도를 입력하세요.';
+            
+            if (speed) {
+                game.player.baseAttackSpeed = speed;
+                game.player.attackSpeed = speed * (1 + game.player.levelAttackSpeedBonus);
+                console.log(`기본 공격 속도를 ${speed}로 설정`);
+                console.log(`현재 공격 속도: ${game.player.getCurrentAttackSpeed()}`);
+            }
+        },
+        
+        // 🆕 공격 속도 레벨별 테스트
+        testAttackSpeedLevels: () => {
+            if (!game || !game.player) {
+                console.log('게임이 실행 중이 아닙니다.');
+                return;
+            }
+            
+            console.log('⚡ 공격 속도 레벨별 테스트:');
+            const baseSpeed = game.player.getBaseAttackSpeed();
+            
+            for (let level = 1; level <= 20; level++) {
+                const bonus = (level - 1) * 0.02;
+                const finalSpeed = baseSpeed * (1 + bonus);
+                const attackInterval = (1.0 / finalSpeed).toFixed(3);
+                const percent = (bonus * 100).toFixed(1);
+                console.log(`레벨 ${level}: ${finalSpeed.toFixed(3)} (기본 ${baseSpeed} + ${percent}%) | 간격: ${attackInterval}초`);
+            }
+        },
+        
         // 도움말
         help: () => {
             console.log('사용 가능한 개발자 명령어:');
@@ -412,6 +512,14 @@ function setupDeveloperTools() {
             console.log('dev.testAutoFireball() - 파이어볼 자동 발사 테스트');
             console.log('dev.magicStats() - 마법 능력치 확인');
             console.log('dev.resetMagicCooldowns() - 마법 쿨다운 리셋');
+            console.log('🎯 🆕 공격 범위 시스템 명령어:');
+            console.log('dev.attackRange() - 공격 범위 상세 정보');
+            console.log('dev.setAttackRange(range) - 기본 공격 범위 설정');
+            console.log('dev.testAttackRangeLevels() - 레벨별 공격 범위 테스트');
+            console.log('⚡ 🆕 공격 속도 시스템 명령어:');
+            console.log('dev.attackSpeed() - 공격 속도 상세 정보');
+            console.log('dev.setAttackSpeed(speed) - 기본 공격 속도 설정');
+            console.log('dev.testAttackSpeedLevels() - 레벨별 공격 속도 테스트');
         }
     };
     

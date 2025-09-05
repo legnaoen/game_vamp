@@ -11,7 +11,14 @@ class HUD {
             healthText: null,
             expText: null,
             survivalTime: null,
-            enemyCount: null
+            enemyCount: null,
+            // 🆕 쿨타임 요소들
+            fireballIcon: null,
+            fireballCooldown: null,
+            fireballText: null,
+            chainLightningIcon: null,
+            chainLightningCooldown: null,
+            chainLightningText: null
         };
         
         // HUD 초기화
@@ -29,6 +36,14 @@ class HUD {
         this.elements.expText = document.getElementById('expText');
         this.elements.survivalTime = document.getElementById('survivalTime');
         this.elements.enemyCount = document.getElementById('enemyCount');
+        
+        // 🆕 쿨타임 요소들 참조 가져오기
+        this.elements.fireballIcon = document.getElementById('fireballIcon');
+        this.elements.fireballCooldown = document.getElementById('fireballCooldown');
+        this.elements.fireballText = document.getElementById('fireballText');
+        this.elements.chainLightningIcon = document.getElementById('chainLightningIcon');
+        this.elements.chainLightningCooldown = document.getElementById('chainLightningCooldown');
+        this.elements.chainLightningText = document.getElementById('chainLightningText');
         
         // 초기 상태 설정
         this.reset();
@@ -51,6 +66,9 @@ class HUD {
         
         // 적 수 업데이트
         this.updateEnemyCount(enemyCount);
+        
+        // 🆕 스킬 쿨타임 업데이트
+        this.updateSkillCooldowns(player);
     }
     
     /**
@@ -198,6 +216,64 @@ class HUD {
         }
         
         this.elements.enemyCount.style.color = color;
+    }
+    
+    /**
+     * 🆕 스킬 쿨타임 업데이트
+     */
+    updateSkillCooldowns(player) {
+        if (!player.magicSystem) return;
+        
+        // 파이어볼 쿨타임 업데이트
+        this.updateSkillCooldown(
+            'fireball',
+            player.magicSystem.fireball,
+            this.elements.fireballIcon,
+            this.elements.fireballCooldown,
+            this.elements.fireballText
+        );
+        
+        // 체인 라이트닝 쿨타임 업데이트
+        this.updateSkillCooldown(
+            'chainLightning',
+            player.magicSystem.chainLightning,
+            this.elements.chainLightningIcon,
+            this.elements.chainLightningCooldown,
+            this.elements.chainLightningText
+        );
+    }
+    
+    /**
+     * 🆕 개별 스킬 쿨타임 업데이트
+     */
+    updateSkillCooldown(skillName, skillData, iconElement, overlayElement, textElement) {
+        if (!iconElement || !overlayElement || !textElement || !skillData) return;
+        
+        const cooldownPercent = skillData.cooldown / skillData.maxCooldown;
+        const isOnCooldown = skillData.cooldown > 0;
+        
+        // 아이콘 상태 업데이트
+        if (isOnCooldown) {
+            iconElement.classList.remove('ready');
+            iconElement.classList.add('cooldown');
+            
+            // 쿨타임 오버레이 표시 (원형으로 감소)
+            const angle = cooldownPercent * 360;
+            overlayElement.style.background = `conic-gradient(rgba(0,0,0,0.7) ${angle}deg, transparent ${angle}deg)`;
+            
+            // 남은 시간 텍스트 표시
+            textElement.textContent = `${skillData.cooldown.toFixed(1)}s`;
+            textElement.style.opacity = '1';
+        } else {
+            iconElement.classList.remove('cooldown');
+            iconElement.classList.add('ready');
+            
+            // 쿨타임 오버레이 숨기기
+            overlayElement.style.background = 'transparent';
+            
+            // 텍스트 숨기기
+            textElement.style.opacity = '0';
+        }
     }
     
     /**
@@ -399,6 +475,29 @@ class HUD {
         if (this.elements.enemyCount) {
             this.elements.enemyCount.textContent = '적 수: 0';
             this.elements.enemyCount.style.color = '#ffffff';
+        }
+        
+        // 🆕 스킬 쿨타임 리셋
+        if (this.elements.fireballIcon) {
+            this.elements.fireballIcon.classList.remove('cooldown');
+            this.elements.fireballIcon.classList.add('ready');
+        }
+        if (this.elements.fireballCooldown) {
+            this.elements.fireballCooldown.style.background = 'transparent';
+        }
+        if (this.elements.fireballText) {
+            this.elements.fireballText.style.opacity = '0';
+        }
+        
+        if (this.elements.chainLightningIcon) {
+            this.elements.chainLightningIcon.classList.remove('cooldown');
+            this.elements.chainLightningIcon.classList.add('ready');
+        }
+        if (this.elements.chainLightningCooldown) {
+            this.elements.chainLightningCooldown.style.background = 'transparent';
+        }
+        if (this.elements.chainLightningText) {
+            this.elements.chainLightningText.style.opacity = '0';
         }
     }
     
