@@ -445,6 +445,18 @@ body {
     box-shadow: 0 0 8px rgba(230, 126, 34, 0.5);
 }
 
+/* 잠긴 스킬 스타일 */
+.skill-icon.locked {
+    border-color: #7f8c8d;
+    background: linear-gradient(145deg, #34495e, #2c3e50) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0.6;
+}
+
+.skill-icon.locked .skill-key {
+    color: #95a5a6;
+}
+
 /* 쿨타임 애니메이션 */
 @keyframes cooldownSweep {
     from {

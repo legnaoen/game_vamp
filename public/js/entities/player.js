@@ -158,7 +158,10 @@ class Player {
         // 🆕 마나 회복
         this.handleManaRegen(deltaTime);
         
-        // 🆕 특수 공격 처리
+        // 🆕 자동 특수 공격 처리 (레벨별)
+        this.handleAutoSpecialAttacks();
+        
+        // 🆕 수동 특수 공격 처리 (키 입력)
         this.handleSpecialAttacks(input);
     }
     
@@ -521,6 +524,41 @@ class Player {
     }
     
     /**
+     * 🆕 자동 특수공격 통합 처리 (레벨별)
+     */
+    handleAutoSpecialAttacks() {
+        const skills = this.getAvailableSkills();
+        
+        // 2레벨: 매직애로우 자동 발사
+        if (skills.magicArrow) {
+            this.handleAutoMagicArrow();
+        }
+        
+        // 3레벨: 파이어볼 자동 발사 (기존 유지)
+        if (skills.fireball) {
+            this.handleAutoFireball();
+        }
+        
+        // 5레벨: 체인라이트닝은 수동 유지 (고위력 스킬)
+    }
+    
+    /**
+     * 🆕 매직애로우 자동 발사 처리
+     */
+    handleAutoMagicArrow() {
+        const magic = this.magicSystem.magicArrow;
+        
+        if (magic.cooldown <= 0) {
+            // 공격 범위 내 적이 있는지 확인
+            const enemiesInRange = this.getEnemiesInRange();
+            if (enemiesInRange.length > 0) {
+                // 매직애로우 자동 발사
+                this.handleMagicArrow();
+            }
+        }
+    }
+    
+    /**
      * 🆕 파이어볼 자동 발사 처리
      */
     handleAutoFireball() {
@@ -729,22 +767,31 @@ class Player {
             return;
         }
         
-        // 🆕 Q키: 매직 애로우
-        if (typeof input.isQPressed === 'function' && input.isQPressed()) {
-            console.log('Q키 입력 감지됨 - 매직 애로우 발사 시도');
+        // 🆕 레벨별 사용 가능한 스킬 확인
+        const skills = this.getAvailableSkills();
+        
+        // 🆕 Q키: 매직 애로우 (2레벨, 수동 발사도 가능)
+        if (skills.magicArrow && typeof input.isQPressed === 'function' && input.isQPressed()) {
+            console.log('Q키 입력 감지됨 - 매직 애로우 수동 발사 시도');
             this.handleMagicArrow();
+        } else if (!skills.magicArrow && typeof input.isQPressed === 'function' && input.isQPressed()) {
+            console.log('매직 애로우는 레벨 2에서 해금됩니다.');
         }
         
-        // 🆕 E키: 파이어볼
-        if (typeof input.isEPressed === 'function' && input.isEPressed()) {
+        // 🆕 E키: 파이어볼 (3레벨)
+        if (skills.fireball && typeof input.isEPressed === 'function' && input.isEPressed()) {
             console.log('E키 입력 감지됨 - 파이어볼 발사 시도');
             this.fireFireball();
+        } else if (!skills.fireball && typeof input.isEPressed === 'function' && input.isEPressed()) {
+            console.log('파이어볼은 레벨 3에서 해금됩니다.');
         }
         
-        // 🆕 R키: 체인 라이트닝
-        if (typeof input.isRPressed === 'function' && input.isRPressed()) {
+        // 🆕 R키: 체인 라이트닝 (5레벨)
+        if (skills.chainLightning && typeof input.isRPressed === 'function' && input.isRPressed()) {
             console.log('R키 입력 감지됨 - 체인 라이트닝 발사 시도');
             this.castChainLightning();
+        } else if (!skills.chainLightning && typeof input.isRPressed === 'function' && input.isRPressed()) {
+            console.log('체인 라이트닝은 레벨 5에서 해금됩니다.');
         }
     }
     
@@ -823,6 +870,9 @@ class Player {
         
         // 🆕 마법 능력치 업데이트
         this.updateMagicStats();
+        
+        // 🆕 스킬 해금 알림
+        this.checkSkillUnlocks();
         
         console.log(`레벨업! 현재 레벨: ${this.level}`);
     }
@@ -1198,6 +1248,35 @@ class Player {
     findNearestEnemyInRange() {
         const enemiesInRange = this.getEnemiesInRange();
         return this.getClosestEnemy(enemiesInRange);
+    }
+    
+    /**
+     * 🆕 레벨별 사용 가능한 스킬 확인
+     */
+    getAvailableSkills() {
+        return {
+            magicArrow: this.level >= 2,     // 2레벨: 매직애로우
+            fireball: this.level >= 3,       // 3레벨: 파이어볼
+            chainLightning: this.level >= 5  // 5레벨: 체인라이트닝
+        };
+    }
+    
+    /**
+     * 🆕 스킬 해금 알림 체크
+     */
+    checkSkillUnlocks() {
+        if (this.level === 2) {
+            console.log('🎯 새로운 스킬 해금!');
+            console.log('🎯 매직애로우 (Q키) - 자동 추적 투사체가 자동으로 발사됩니다!');
+        }
+        if (this.level === 3) {
+            console.log('🔥 새로운 스킬 해금!');
+            console.log('🔥 파이어볼 (E키) - 폭발 범위 데미지를 가진 투사체입니다!');
+        }
+        if (this.level === 5) {
+            console.log('⚡ 새로운 스킬 해금!');
+            console.log('⚡ 체인라이트닝 (R키) - 적들 사이를 연쇄 공격하는 강력한 마법입니다!');
+        }
     }
     
     /**

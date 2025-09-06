@@ -551,6 +551,72 @@ function setupDeveloperTools() {
             }
         },
         
+        // 🆕 스킬 시스템 명령어들
+        skills: () => {
+            if (!game || !game.player) {
+                console.log('게임이 초기화되지 않았습니다.');
+                return;
+            }
+            
+            const player = game.player;
+            const skills = player.getAvailableSkills();
+            
+            console.log('=== 🎯 스킬 시스템 상태 ===');
+            console.log(`현재 레벨: ${player.level}`);
+            console.log('스킬 상태:');
+            console.log(`  🎯 매직애로우 (Q): ${skills.magicArrow ? '✅ 해금됨 (자동 발사)' : '🔒 잠김 (레벨 2 필요)'}`);
+            console.log(`  🔥 파이어볼 (E): ${skills.fireball ? '✅ 해금됨 (자동 발사)' : '🔒 잠김 (레벨 3 필요)'}`);
+            console.log(`  ⚡ 체인라이트닝 (R): ${skills.chainLightning ? '✅ 해금됨 (수동)' : '🔒 잠김 (레벨 5 필요)'}`);
+            
+            if (player.magicSystem) {
+                console.log('쿨타임 상태:');
+                console.log(`  매직애로우: ${player.magicSystem.magicArrow.cooldown.toFixed(1)}s / ${player.magicSystem.magicArrow.maxCooldown}s`);
+                console.log(`  파이어볼: ${player.magicSystem.fireball.cooldown.toFixed(1)}s / ${player.magicSystem.fireball.maxCooldown}s`);
+                console.log(`  체인라이트닝: ${player.magicSystem.chainLightning.cooldown.toFixed(1)}s / ${player.magicSystem.chainLightning.maxCooldown}s`);
+            }
+        },
+        
+        unlockAllSkills: () => {
+            if (!game || !game.player) {
+                console.log('게임이 초기화되지 않았습니다.');
+                return;
+            }
+            
+            const oldLevel = game.player.level;
+            game.player.level = 5;
+            game.player.experience = 0;
+            game.player.experienceToNext = game.player.getExperienceForLevel(6);
+            
+            console.log(`플레이어 레벨을 ${oldLevel}에서 5로 설정하여 모든 스킬을 해금했습니다.`);
+            console.log('🎯 매직애로우, 🔥 파이어볼, ⚡ 체인라이트닝 모두 사용 가능!');
+        },
+        
+        testSkillProgression: () => {
+            if (!game || !game.player) {
+                console.log('게임이 초기화되지 않았습니다.');
+                return;
+            }
+            
+            console.log('=== 🎯 스킬 해금 진행 테스트 ===');
+            
+            for (let level = 1; level <= 6; level++) {
+                const skills = {
+                    magicArrow: level >= 2,
+                    fireball: level >= 3,
+                    chainLightning: level >= 5
+                };
+                
+                console.log(`레벨 ${level}:`);
+                console.log(`  매직애로우: ${skills.magicArrow ? '✅' : '❌'}`);
+                console.log(`  파이어볼: ${skills.fireball ? '✅' : '❌'}`);
+                console.log(`  체인라이트닝: ${skills.chainLightning ? '✅' : '❌'}`);
+                
+                if (level === 2) console.log('  🎯 매직애로우 해금!');
+                if (level === 3) console.log('  🔥 파이어볼 해금!');
+                if (level === 5) console.log('  ⚡ 체인라이트닝 해금!');
+            }
+        },
+        
         // 도움말
         help: () => {
             console.log('사용 가능한 개발자 명령어:');
@@ -590,6 +656,10 @@ function setupDeveloperTools() {
             console.log('🎯 🆕 공격 개수 시스템 명령어:');
             console.log('dev.attackCount() - 공격 개수 상세 정보');
             console.log('dev.testAttackCountLevels() - 레벨별 공격 개수 테스트');
+            console.log('🎯 🆕 스킬 시스템 명령어:');
+            console.log('dev.skills() - 현재 사용 가능한 스킬 확인');
+            console.log('dev.unlockAllSkills() - 모든 스킬 해금 (레벨 5로 설정)');
+            console.log('dev.testSkillProgression() - 스킬 해금 진행 테스트');
         }
     };
     

@@ -230,32 +230,62 @@ class HUD {
     updateSkillCooldowns(player) {
         if (!player.magicSystem) return;
         
-        // 매직 애로우 쿨타임 업데이트
-        this.updateSkillCooldown(
-            'magicArrow',
-            player.magicSystem.magicArrow,
-            this.elements.magicArrowIcon,
-            this.elements.magicArrowCooldown,
-            this.elements.magicArrowText
-        );
+        // 🆕 레벨별 사용 가능한 스킬 확인
+        const skills = player.getAvailableSkills();
         
-        // 파이어볼 쿨타임 업데이트
-        this.updateSkillCooldown(
-            'fireball',
-            player.magicSystem.fireball,
-            this.elements.fireballIcon,
-            this.elements.fireballCooldown,
-            this.elements.fireballText
-        );
+        // 매직 애로우 쿨타임 업데이트 (2레벨)
+        if (skills.magicArrow) {
+            this.updateSkillCooldown(
+                'magicArrow',
+                player.magicSystem.magicArrow,
+                this.elements.magicArrowIcon,
+                this.elements.magicArrowCooldown,
+                this.elements.magicArrowText
+            );
+        } else {
+            this.showSkillLocked(
+                this.elements.magicArrowIcon,
+                this.elements.magicArrowCooldown,
+                this.elements.magicArrowText,
+                2
+            );
+        }
         
-        // 체인 라이트닝 쿨타임 업데이트
-        this.updateSkillCooldown(
-            'chainLightning',
-            player.magicSystem.chainLightning,
-            this.elements.chainLightningIcon,
-            this.elements.chainLightningCooldown,
-            this.elements.chainLightningText
-        );
+        // 파이어볼 쿨타임 업데이트 (3레벨)
+        if (skills.fireball) {
+            this.updateSkillCooldown(
+                'fireball',
+                player.magicSystem.fireball,
+                this.elements.fireballIcon,
+                this.elements.fireballCooldown,
+                this.elements.fireballText
+            );
+        } else {
+            this.showSkillLocked(
+                this.elements.fireballIcon,
+                this.elements.fireballCooldown,
+                this.elements.fireballText,
+                3
+            );
+        }
+        
+        // 체인 라이트닝 쿨타임 업데이트 (5레벨)
+        if (skills.chainLightning) {
+            this.updateSkillCooldown(
+                'chainLightning',
+                player.magicSystem.chainLightning,
+                this.elements.chainLightningIcon,
+                this.elements.chainLightningCooldown,
+                this.elements.chainLightningText
+            );
+        } else {
+            this.showSkillLocked(
+                this.elements.chainLightningIcon,
+                this.elements.chainLightningCooldown,
+                this.elements.chainLightningText,
+                5
+            );
+        }
     }
     
     /**
@@ -269,7 +299,7 @@ class HUD {
         
         // 아이콘 상태 업데이트
         if (isOnCooldown) {
-            iconElement.classList.remove('ready');
+            iconElement.classList.remove('ready', 'locked');
             iconElement.classList.add('cooldown');
             
             // 쿨타임 오버레이 표시 (원형으로 감소)
@@ -280,7 +310,7 @@ class HUD {
             textElement.textContent = `${skillData.cooldown.toFixed(1)}s`;
             textElement.style.opacity = '1';
         } else {
-            iconElement.classList.remove('cooldown');
+            iconElement.classList.remove('cooldown', 'locked');
             iconElement.classList.add('ready');
             
             // 쿨타임 오버레이 숨기기
@@ -289,6 +319,24 @@ class HUD {
             // 텍스트 숨기기
             textElement.style.opacity = '0';
         }
+    }
+    
+    /**
+     * 🆕 잠긴 스킬 표시
+     */
+    showSkillLocked(iconElement, overlayElement, textElement, requiredLevel) {
+        if (!iconElement || !overlayElement || !textElement) return;
+        
+        // 잠긴 상태로 설정
+        iconElement.classList.remove('ready', 'cooldown');
+        iconElement.classList.add('locked');
+        
+        // 잠금 오버레이 표시
+        overlayElement.style.background = 'rgba(0, 0, 0, 0.8)';
+        
+        // 필요 레벨 텍스트 표시
+        textElement.textContent = `Lv.${requiredLevel}`;
+        textElement.style.opacity = '1';
     }
     
     /**
