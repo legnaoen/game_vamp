@@ -534,12 +534,8 @@ class Player {
             this.handleAutoMagicArrow();
         }
         
-        // 3레벨: 파이어볼 자동 발사 (기존 유지)
-        if (skills.fireball) {
-            this.handleAutoFireball();
-        }
-        
-        // 5레벨: 체인라이트닝은 수동 유지 (고위력 스킬)
+        // 3레벨: 파이어볼은 수동 발사 (E키)
+        // 5레벨: 체인라이트닝은 수동 발사 (R키)
     }
     
     /**
@@ -558,25 +554,6 @@ class Player {
         }
     }
     
-    /**
-     * 🆕 파이어볼 자동 발사 처리
-     */
-    handleAutoFireball() {
-        const magic = this.magicSystem.fireball;
-        
-        if (magic.cooldown <= 0) {
-            // 공격 범위 내 적이 있는지 확인
-            const enemiesInRange = this.getEnemiesInRange();
-            if (enemiesInRange.length > 0) {
-                // 가장 가까운 적을 타겟으로 선택
-                const targetEnemy = this.getClosestEnemy(enemiesInRange);
-                if (targetEnemy) {
-                    // 파이어볼 자동 발사 (타겟 지정)
-                    this.fireFireball(targetEnemy);
-                }
-            }
-        }
-    }
     
     /**
      * 🆕 매직 에로우 발사
@@ -614,54 +591,50 @@ class Player {
     }
     
     /**
-     * 🆕 파이어볼 발사 (E키 또는 자동)
+     * 🆕 파이어볼 발사 (수동 - E키)
      */
-    fireFireball(targetEnemy = null) {
+    fireFireball() {
         const magic = this.magicSystem.fireball;
         
         if (magic.cooldown <= 0) {
-            // 쿨다운 설정
-            magic.cooldown = magic.maxCooldown;
-            
             // 🆕 파이어볼 공격 범위 계산
             const fireballRange = this.getCurrentAttackRange() * magic.range;
             
-            // 🆕 타겟이 없으면 파이어볼 범위 내에서 가장 가까운 적을 자동으로 찾기
-            if (!targetEnemy) {
-                const enemiesInFireballRange = this.getEnemiesInSpecificRange(fireballRange);
-                if (enemiesInFireballRange.length > 0) {
-                    targetEnemy = this.getClosestEnemy(enemiesInFireballRange);
-                    console.log(`파이어볼 오토타겟팅: ${targetEnemy.type} 선택됨 (범위: ${fireballRange.toFixed(1)})`);
-                } else {
-                    // 🆕 파이어볼 범위 내에 적이 없으면 발사하지 않음
-                    console.log('파이어볼: 공격 범위 내에 적이 없어 발사하지 않음');
-                    return;
-                }
+            // 🆕 파이어볼 범위 내에서 가장 가까운 적을 자동으로 찾기
+            const enemiesInFireballRange = this.getEnemiesInSpecificRange(fireballRange);
+            if (enemiesInFireballRange.length === 0) {
+                console.log('파이어볼: 공격 범위 내에 적이 없어 발사하지 않음');
+                return;
             }
             
-            // 🆕 타겟이 있으면 타겟 방향으로 발사
-            if (targetEnemy) {
-                // 🆕 레벨에 따른 데미지 강화 (레벨당 5% 증가)
-                const levelDamageBonus = 1 + (this.level - 1) * 0.05;
-                
-                // 타겟을 향한 방향 계산
-                const dx = targetEnemy.x - this.x;
-                const dy = targetEnemy.y - this.y;
-                const angle = Math.atan2(dy, dx);
-                console.log(`파이어볼 발사! 타겟: ${targetEnemy.type}, 방향: ${(angle * 180 / Math.PI).toFixed(1)}도, 범위: ${fireballRange.toFixed(1)}, 레벨 ${this.level} 데미지 강화: ${(levelDamageBonus * 100 - 100).toFixed(1)}%`);
-                
-                const enhancedDamage = this.getCurrentAttackDamage() * magic.damage * levelDamageBonus;
-                
-                const projectile = new FireballProjectile(
-                    this.x, this.y,
-                    angle,
-                    fireballRange,
-                    enhancedDamage,
-                    magic.explosionRange
-                );
-                
-                this.projectiles.push(projectile);
-            }
+            const targetEnemy = this.getClosestEnemy(enemiesInFireballRange);
+            console.log(`파이어볼 타겟: ${targetEnemy.type} 선택됨 (범위: ${fireballRange.toFixed(1)})`);
+            
+            // 쿨다운 설정
+            magic.cooldown = magic.maxCooldown;
+            
+            // 🆕 레벨에 따른 데미지 강화 (레벨당 5% 증가)
+            const levelDamageBonus = 1 + (this.level - 1) * 0.05;
+            
+            // 타겟을 향한 방향 계산
+            const dx = targetEnemy.x - this.x;
+            const dy = targetEnemy.y - this.y;
+            const angle = Math.atan2(dy, dx);
+            console.log(`파이어볼 발사! 타겟: ${targetEnemy.type}, 방향: ${(angle * 180 / Math.PI).toFixed(1)}도, 범위: ${fireballRange.toFixed(1)}, 레벨 ${this.level} 데미지 강화: ${(levelDamageBonus * 100 - 100).toFixed(1)}%`);
+            
+            const enhancedDamage = this.getCurrentAttackDamage() * magic.damage * levelDamageBonus;
+            
+            const projectile = new FireballProjectile(
+                this.x, this.y,
+                angle,
+                fireballRange,
+                enhancedDamage,
+                magic.explosionRange
+            );
+            
+            this.projectiles.push(projectile);
+        } else {
+            console.log(`파이어볼 쿨다운 중: ${magic.cooldown.toFixed(1)}초 남음`);
         }
     }
     
