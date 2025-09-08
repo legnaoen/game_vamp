@@ -14,7 +14,7 @@ class MobileControls {
         this.joystickKnob = null;
         this.buttons = {};
         
-        // 조이스틱 상태
+        // 조이스틱 상태 (🔧 컴팩트 레이아웃에 맞춰 크기 조정)
         this.joystick = {
             isActive: false,
             touchId: null,
@@ -22,7 +22,7 @@ class MobileControls {
             centerY: 0,
             currentX: 0,
             currentY: 0,
-            maxRadius: 60, // 조이스틱 이동 가능 반경
+            maxRadius: 50, // 조이스틱 이동 가능 반경 (60 → 50)
             startX: 0,
             startY: 0
         };
