@@ -279,7 +279,7 @@ body {
         height: auto;
         max-height: 55vh; /* 캔버스 높이만 줄임 */
         touch-action: none;
-        margin-top: -40px; /* 캔버스를 40px 위로 이동 (-20px → -40px) */
+        margin-top: -60px; /* 캔버스를 60px 위로 이동 (-40px → -60px, 20px 더 위로) */
     }
     
     /* HUD 위치 - 기본 absolute 유지하되 간격 조정 */
@@ -325,15 +325,15 @@ body {
     
     /* 조이스틱 영역 - 20px 더 위로 이동 */
     .joystick-area {
-        bottom: 100px !important; /* 80px → 100px (20px 더 위로) */
+        bottom: 120px !important; /* 140px → 120px (20px 아래로) */
         left: 20px !important;
         width: 90px !important;
         height: 90px !important;
     }
     
-    /* 버튼 영역 - 20px 더 위로 이동 */
+    /* 버튼 영역 - 조이스틱과 중앙 정렬 */
     .button-area {
-        bottom: 100px !important; /* 80px → 100px (20px 더 위로) */
+        bottom: 140px !important; /* 120px → 140px (조이스틱 중앙과 정렬) */
         right: 20px !important;
         display: flex !important;
         flex-direction: row !important;
@@ -593,6 +593,8 @@ body {
 
 .joystick-knob {
     position: absolute;
+    top: 50%;
+    left: 50%;
     width: 50px;
     height: 50px;
     background: linear-gradient(145deg, #4a90e2, #357abd);
@@ -603,10 +605,11 @@ body {
         0 0 15px rgba(74, 144, 226, 0.5);
     transition: all 0.1s ease;
     cursor: pointer;
+    transform: translate(-50%, -50%);
 }
 
 .joystick-knob:active {
-    transform: scale(0.9);
+    transform: translate(-50%, -50%) scale(0.9);
     box-shadow: 
         0 2px 4px rgba(0, 0, 0, 0.4),
         0 0 20px rgba(74, 144, 226, 0.7);
