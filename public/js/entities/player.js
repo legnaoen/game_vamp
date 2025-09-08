@@ -171,6 +171,8 @@ class Player {
     handleMovement(input, deltaTime) {
         const movement = input.getMovementVector();
         
+        // 🔧 키보드 입력이 있을 때만 키보드로 이동 처리
+        // (모바일 컨트롤로 설정된 vx, vy를 덮어쓰지 않도록)
         if (movement.x !== 0 || movement.y !== 0) {
             this.isMoving = true;
             
@@ -180,20 +182,35 @@ class Player {
             // 대시 중일 때 속도 증가
             const finalSpeed = this.isDashing ? currentSpeed * 2 : currentSpeed;
             
-            // 속도 벡터 설정
+            // 키보드 입력으로 속도 벡터 설정
             this.vx = movement.x * finalSpeed;
             this.vy = movement.y * finalSpeed;
+        } else if (this.vx === 0 && this.vy === 0) {
+            // 🔧 키보드 입력도 없고 모바일 컨트롤 입력도 없을 때만 정지
+            this.isMoving = false;
+        }
+        
+        // 🔧 이동 상태 체크 (키보드 또는 모바일 컨트롤 입력)
+        if (this.vx !== 0 || this.vy !== 0) {
+            this.isMoving = true;
+            
+            // 대시 중일 때 속도 증가 적용
+            let currentVx = this.vx;
+            let currentVy = this.vy;
+            
+            if (this.isDashing) {
+                currentVx *= 2;
+                currentVy *= 2;
+            }
             
             // 위치 업데이트
-            this.x += this.vx * deltaTime;
-            this.y += this.vy * deltaTime;
+            this.x += currentVx * deltaTime;
+            this.y += currentVy * deltaTime;
             
             // 화면 경계 체크
             this.checkBounds();
         } else {
             this.isMoving = false;
-            this.vx = 0;
-            this.vy = 0;
         }
     }
     
@@ -205,6 +222,20 @@ class Player {
             this.dashCooldown = 1.0; // 1초 쿨다운
             this.dashDuration = 0.2; // 0.2초 지속
             this.isDashing = true;
+        }
+    }
+    
+    /**
+     * 🔧 모바일 컨트롤용 대시 메서드
+     */
+    dash() {
+        if (this.dashCooldown <= 0 && !this.isDashing) {
+            this.dashCooldown = 1.0; // 1초 쿨다운
+            this.dashDuration = 0.2; // 0.2초 지속
+            this.isDashing = true;
+            console.log('💨 대시 실행! 쿨다운:', this.dashCooldown);
+        } else {
+            console.log('⚠️ 대시 쿨다운 중:', this.dashCooldown.toFixed(1) + 's');
         }
     }
     

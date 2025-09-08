@@ -233,7 +233,19 @@ class HUD {
         // 🆕 레벨별 사용 가능한 스킬 확인
         const skills = player.getAvailableSkills();
         
-        // 매직 애로우 쿨타임 업데이트 (2레벨)
+        // 🔧 모바일 컨트롤과 스킬 상태 동기화
+        if (window.game && window.game.mobileControls) {
+            window.game.mobileControls.updateSkillLocks(player.level);
+            
+            // 스킬 쿨다운 상태 전달
+            const cooldownStates = {
+                fireball: !skills.fireball || player.magicSystem.fireball.cooldown > 0,
+                chainLightning: !skills.chainLightning || player.magicSystem.chainLightning.cooldown > 0
+            };
+            window.game.mobileControls.updateSkillCooldowns(cooldownStates);
+        }
+        
+        // 매직 애로우 쿨타임 업데이트 (2레�)
         if (skills.magicArrow) {
             this.updateSkillCooldown(
                 'magicArrow',

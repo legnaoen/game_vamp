@@ -1,64 +1,30 @@
 /**
- * Survivor's Night - 모바일 터치 컨트롤 시스템
+ * Survivor's Night - HTML 기반 모바일 터치 컨트롤 시스템
  * 모바일 디바이스에서만 활성화되는 가상 컨트롤을 관리합니다.
+ * Canvas 렌더링 대신 HTML 요소를 사용하여 터치 문제를 해결합니다.
  */
 class MobileControls {
     constructor(game) {
         this.game = game;
         this.isActive = false;
-        this.canvas = null;
-        this.ctx = null;
         
-        // 가상 조이스틱
+        // HTML 요소들
+        this.overlay = null;
+        this.joystickBase = null;
+        this.joystickKnob = null;
+        this.buttons = {};
+        
+        // 조이스틱 상태
         this.joystick = {
+            isActive: false,
+            touchId: null,
             centerX: 0,
             centerY: 0,
             currentX: 0,
             currentY: 0,
-            radius: 60,
-            knobRadius: 25,
-            isActive: false,
-            touchId: null
-        };
-        
-        // 가상 버튼들
-        this.buttons = {
-            attack: {
-                x: 0,
-                y: 0,
-                radius: 30,
-                isPressed: false,
-                touchId: null,
-                color: '#ff4757',
-                activeColor: '#ff3742'
-            },
-            dash: {
-                x: 0,
-                y: 0,
-                radius: 30,
-                isPressed: false,
-                touchId: null,
-                color: '#2ed573',
-                activeColor: '#26d065'
-            },
-            fireball: {
-                x: 0,
-                y: 0,
-                radius: 25,
-                isPressed: false,
-                touchId: null,
-                color: '#ffa502',
-                activeColor: '#ff9500'
-            },
-            chainLightning: {
-                x: 0,
-                y: 0,
-                radius: 25,
-                isPressed: false,
-                touchId: null,
-                color: '#1e90ff',
-                activeColor: '#0078d4'
-            }
+            maxRadius: 60, // 조이스틱 이동 가능 반경
+            startX: 0,
+            startY: 0
         };
         
         // 터치 이벤트 상태
@@ -72,230 +38,332 @@ class MobileControls {
      */
     init() {
         if (!window.deviceDetector.isMobile()) {
-            console.log('모바일 디바이스가 아니므로 터치 컨트롤을 비활성화합니다.');
+            console.log('데스크톱 디바이스이므로 HTML 모바일 컨트롤을 비활성화합니다.');
             return;
         }
         
-        this.canvas = this.game.canvas;
-        this.ctx = this.game.ctx;
-        this.isActive = true;
+        console.log('HTML 기반 모바일 컨트롤 초기화 시작...');
         
-        this.setupLayout();
-        this.setupTouchEvents();
-        this.setupDeviceChangeListener();
+        // HTML 요소 참조 가져오기
+        this.setupElements();
         
-        console.log('모바일 터치 컨트롤이 활성화되었습니다.');
+        // 이벤트 리스너 설정
+        this.setupEventListeners();
+        
+        // 초기 상태는 비활성화 (게임 시작 시 활성화됨)
+        this.isActive = false;
+        
+        console.log('HTML 기반 모바일 컨트롤 초기화 완료');
     }
     
     /**
-     * 레이아웃 설정
+     * HTML 요소들 설정
      */
-    setupLayout() {
-        const canvasWidth = this.canvas.width;
-        const canvasHeight = this.canvas.height;
-        const margin = 40;
+    setupElements() {
+        // 메인 오버레이
+        this.overlay = document.getElementById('mobileControlsOverlay');
+        if (!this.overlay) {
+            console.error('모바일 컨트롤 오버레이를 찾을 수 없습니다!');
+            return;
+        }
         
-        // 조이스틱 위치 (좌하단)
-        this.joystick.centerX = margin + this.joystick.radius;
-        this.joystick.centerY = canvasHeight - margin - this.joystick.radius;
-        this.joystick.currentX = this.joystick.centerX;
-        this.joystick.currentY = this.joystick.centerY;
+        // 조이스틱 요소들
+        this.joystickBase = document.getElementById('joystickBase');
+        this.joystickKnob = document.getElementById('joystickKnob');
         
-        // 버튼 위치 (우하단)
-        const buttonY = canvasHeight - margin - 30;
-        const buttonSpacing = 80;
-        const startX = canvasWidth - margin - 30;
+        // 버튼 요소들
+        this.buttons = {
+            attack: document.getElementById('attackBtn'),
+            dash: document.getElementById('dashBtn'),
+            fireball: document.getElementById('fireballBtn'),
+            chainLightning: document.getElementById('chainBtn')
+        };
         
-        this.buttons.attack.x = startX;
-        this.buttons.attack.y = buttonY;
-        
-        this.buttons.dash.x = startX - buttonSpacing;
-        this.buttons.dash.y = buttonY;
-        
-        this.buttons.fireball.x = startX;
-        this.buttons.fireball.y = buttonY - 60;
-        
-        this.buttons.chainLightning.x = startX - buttonSpacing;
-        this.buttons.chainLightning.y = buttonY - 60;
-    }
-    
-    /**
-     * 터치 이벤트 설정
-     */
-    setupTouchEvents() {
-        if (!this.isActive) return;
-        
-        // 터치 이벤트 리스너 추가
-        this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-        this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-        this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-        this.canvas.addEventListener('touchcancel', this.handleTouchEnd.bind(this), { passive: false });
-        
-        // 스크롤 방지
-        document.addEventListener('touchmove', this.preventScroll.bind(this), { passive: false });
-    }
-    
-    /**
-     * 디바이스 변경 감지
-     */
-    setupDeviceChangeListener() {
-        window.addEventListener('deviceTypeChanged', (event) => {
-            if (event.detail.deviceType === 'mobile') {
-                if (!this.isActive) {
-                    this.init();
-                }
-            } else {
-                this.destroy();
-            }
+        console.log('HTML 요소 참조 설정 완료:', {
+            overlay: !!this.overlay,
+            joystickBase: !!this.joystickBase,
+            joystickKnob: !!this.joystickKnob,
+            buttons: Object.keys(this.buttons).map(key => ({ [key]: !!this.buttons[key] }))
         });
     }
     
     /**
-     * 터치 시작 처리
+     * 이벤트 리스너 설정
      */
-    handleTouchStart(event) {
-        if (!this.isActive) return;
+    setupEventListeners() {
+        if (!this.overlay) return;
         
-        event.preventDefault();
-        
-        for (let touch of event.changedTouches) {
-            const touchId = touch.identifier;
-            const x = touch.clientX - this.canvas.offsetLeft;
-            const y = touch.clientY - this.canvas.offsetTop;
-            
-            this.touches.set(touchId, { x, y });
-            
-            // 조이스틱 영역 체크
-            if (this.isPointInJoystick(x, y)) {
-                this.activateJoystick(touchId, x, y);
-            }
-            // 버튼 영역 체크
-            else if (this.isPointInButton(x, y)) {
-                this.activateButton(touchId, x, y);
-            }
+        // 조이스틱 이벤트
+        if (this.joystickBase) {
+            this.joystickBase.addEventListener('touchstart', this.handleJoystickStart.bind(this), { passive: false });
+            this.joystickBase.addEventListener('touchmove', this.handleJoystickMove.bind(this), { passive: false });
+            this.joystickBase.addEventListener('touchend', this.handleJoystickEnd.bind(this), { passive: false });
+            this.joystickBase.addEventListener('touchcancel', this.handleJoystickEnd.bind(this), { passive: false });
         }
-    }
-    
-    /**
-     * 터치 이동 처리
-     */
-    handleTouchMove(event) {
-        if (!this.isActive) return;
         
-        event.preventDefault();
-        
-        for (let touch of event.changedTouches) {
-            const touchId = touch.identifier;
-            const x = touch.clientX - this.canvas.offsetLeft;
-            const y = touch.clientY - this.canvas.offsetTop;
-            
-            if (this.touches.has(touchId)) {
-                this.touches.set(touchId, { x, y });
+        // 버튼 이벤트들
+        Object.entries(this.buttons).forEach(([name, button]) => {
+            if (button) {
+                button.addEventListener('touchstart', (e) => this.handleButtonStart(e, name), { passive: false });
+                button.addEventListener('touchend', (e) => this.handleButtonEnd(e, name), { passive: false });
+                button.addEventListener('touchcancel', (e) => this.handleButtonEnd(e, name), { passive: false });
                 
-                // 조이스틱 업데이트
-                if (this.joystick.isActive && this.joystick.touchId === touchId) {
-                    this.updateJoystick(x, y);
-                }
+                // 클릭 이벤트도 추가 (테스트용)
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleButtonPress(name);
+                });
             }
-        }
+        });
+        
+        console.log('HTML 모바일 컨트롤 이벤트 리스너 설정 완료');
     }
     
     /**
-     * 터치 종료 처리
+     * 조이스틱 터치 시작
      */
-    handleTouchEnd(event) {
+    handleJoystickStart(event) {
         if (!this.isActive) return;
         
         event.preventDefault();
+        event.stopPropagation();
         
-        for (let touch of event.changedTouches) {
-            const touchId = touch.identifier;
-            
-            // 조이스틱 비활성화
-            if (this.joystick.isActive && this.joystick.touchId === touchId) {
-                this.deactivateJoystick();
-            }
-            
-            // 버튼 비활성화
-            this.deactivateButton(touchId);
-            
-            this.touches.delete(touchId);
-        }
-    }
-    
-    /**
-     * 스크롤 방지 (게임 플레이 중에만)
-     */
-    preventScroll(event) {
-        // 🔧 게임 플레이 중에만 스크롤 방지
-        if (this.isActive && this.game && this.game.gameState === 'playing') {
-            event.preventDefault();
-        }
-    }
-    
-    /**
-     * 조이스틱 영역 체크
-     */
-    isPointInJoystick(x, y) {
-        const dx = x - this.joystick.centerX;
-        const dy = y - this.joystick.centerY;
-        return Math.sqrt(dx * dx + dy * dy) <= this.joystick.radius;
-    }
-    
-    /**
-     * 버튼 영역 체크
-     */
-    isPointInButton(x, y) {
-        for (let buttonName in this.buttons) {
-            const button = this.buttons[buttonName];
-            const dx = x - button.x;
-            const dy = y - button.y;
-            if (Math.sqrt(dx * dx + dy * dy) <= button.radius) {
-                return buttonName;
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * 조이스틱 활성화
-     */
-    activateJoystick(touchId, x, y) {
-        this.joystick.isActive = true;
-        this.joystick.touchId = touchId;
-        this.updateJoystick(x, y);
-    }
-    
-    /**
-     * 조이스틱 업데이트
-     */
-    updateJoystick(x, y) {
-        const dx = x - this.joystick.centerX;
-        const dy = y - this.joystick.centerY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        console.log('🕹️ 조이스틱 터치 시작');
         
-        if (distance <= this.joystick.radius) {
-            this.joystick.currentX = x;
-            this.joystick.currentY = y;
-        } else {
-            // 조이스틱 반경을 벗어나면 반경 내로 제한
-            const angle = Math.atan2(dy, dx);
-            this.joystick.currentX = this.joystick.centerX + Math.cos(angle) * this.joystick.radius;
-            this.joystick.currentY = this.joystick.centerY + Math.sin(angle) * this.joystick.radius;
+        const touch = event.touches[0];
+        if (touch) {
+            this.joystick.isActive = true;
+            this.joystick.touchId = touch.identifier;
+            
+            // 조이스틱 베이스의 중심점 계산
+            const rect = this.joystickBase.getBoundingClientRect();
+            this.joystick.centerX = rect.left + rect.width / 2;
+            this.joystick.centerY = rect.top + rect.height / 2;
+            
+            // 터치 시작 위치 저장
+            this.joystick.startX = touch.clientX;
+            this.joystick.startY = touch.clientY;
+            
+            this.updateJoystickPosition(touch.clientX, touch.clientY);
         }
-        
-        // 플레이어 이동 방향 계산
-        this.updatePlayerMovement();
     }
     
     /**
-     * 조이스틱 비활성화
+     * 조이스틱 터치 이동
      */
-    deactivateJoystick() {
+    handleJoystickMove(event) {
+        if (!this.isActive || !this.joystick.isActive) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const touch = Array.from(event.touches).find(t => t.identifier === this.joystick.touchId);
+        if (touch) {
+            this.updateJoystickPosition(touch.clientX, touch.clientY);
+        }
+    }
+    
+    /**
+     * 조이스틱 터치 종료
+     */
+    handleJoystickEnd(event) {
+        if (!this.isActive || !this.joystick.isActive) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        console.log('🕹️ 조이스틱 터치 종료');
+        
         this.joystick.isActive = false;
         this.joystick.touchId = null;
-        this.joystick.currentX = this.joystick.centerX;
-        this.joystick.currentY = this.joystick.centerY;
+        
+        // 조이스틱 노브를 중앙으로 복원
+        this.joystickKnob.style.transform = 'translate(-50%, -50%)';
+        
+        // 플레이어 정지
+        if (this.game.player) {
+            this.game.player.vx = 0;
+            this.game.player.vy = 0;
+            console.log('🕹️ 플레이어 정지 설정');
+        }
+    }
+    
+    /**
+     * 조이스틱 위치 업데이트
+     */
+    updateJoystickPosition(touchX, touchY) {
+        const dx = touchX - this.joystick.centerX;
+        const dy = touchY - this.joystick.centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        let knobX = dx;
+        let knobY = dy;
+        
+        // 최대 반경 제한
+        if (distance > this.joystick.maxRadius) {
+            const angle = Math.atan2(dy, dx);
+            knobX = Math.cos(angle) * this.joystick.maxRadius;
+            knobY = Math.sin(angle) * this.joystick.maxRadius;
+        }
+        
+        // 조이스틱 노브 위치 업데이트
+        this.joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+        
+        // 플레이어 이동 업데이트
+        this.updatePlayerMovement(knobX, knobY);
+    }
+    
+    /**
+     * 플레이어 이동 업데이트
+     */
+    updatePlayerMovement(deltaX, deltaY) {
+        if (!this.game.player) {
+            console.error('❌ 플레이어 참조가 없습니다!', { game: !!this.game, player: !!this.game?.player });
+            return;
+        }
+        
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        if (distance > 5) { // 최소 이동 거리
+            const normalizedDistance = Math.min(distance / this.joystick.maxRadius, 1);
+            const angle = Math.atan2(deltaY, deltaX);
+            const speed = this.game.player.speed * normalizedDistance;
+            
+            const newVx = Math.cos(angle) * speed;
+            const newVy = Math.sin(angle) * speed;
+            
+            this.game.player.vx = newVx;
+            this.game.player.vy = newVy;
+            
+            console.log('🕹️ 플레이어 이동 설정:', {
+                deltaX: deltaX.toFixed(1),
+                deltaY: deltaY.toFixed(1),
+                distance: distance.toFixed(1),
+                normalizedDistance: normalizedDistance.toFixed(2),
+                angle: (angle * 180 / Math.PI).toFixed(1) + '°',
+                speed: speed.toFixed(1),
+                vx: newVx.toFixed(1),
+                vy: newVy.toFixed(1),
+                playerPos: `(${this.game.player.x.toFixed(1)}, ${this.game.player.y.toFixed(1)})`
+            });
+        } else {
+            this.game.player.vx = 0;
+            this.game.player.vy = 0;
+            console.log('🕹️ 플레이어 정지 (거리가 너무 작음:', distance.toFixed(1), ')');
+        }
+    }
+    
+    /**
+     * 버튼 터치 시작
+     */
+    handleButtonStart(event, buttonName) {
+        if (!this.isActive) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        console.log(`🔘 ${buttonName} 버튼 터치 시작`);
+        
+        // 버튼 시각적 피드백
+        this.buttons[buttonName].classList.add('active');
+        
+        // 버튼 액션 실행
+        this.handleButtonPress(buttonName);
+    }
+    
+    /**
+     * 버튼 터치 종료
+     */
+    handleButtonEnd(event, buttonName) {
+        if (!this.isActive) return;
+        
+        event.preventDefault();
+        event.stopPropagation();
+        
+        console.log(`🔘 ${buttonName} 버튼 터치 종료`);
+        
+        // 버튼 시각적 피드백 제거
+        this.buttons[buttonName].classList.remove('active');
+    }
+    
+    /**
+     * 버튼 누름 처리
+     */
+    handleButtonPress(buttonName) {
+        console.log(`🎯 버튼 액션 실행: ${buttonName}`);
+        
+        if (!this.game.player) {
+            console.error('❌ 게임 플레이어가 없음!');
+            return;
+        }
+        
+        switch (buttonName) {
+            case 'attack':
+                console.log('⚔️ 공격 버튼 (자동 공격은 이미 활성화됨)');
+                // 자동 공격은 이미 활성화되어 있음
+                break;
+            case 'dash':
+                console.log('💨 대시 실행!');
+                this.game.player.dash();
+                break;
+            case 'fireball':
+                console.log('🔥 파이어볼 발사!');
+                this.game.player.fireFireball();
+                break;
+            case 'chainLightning':
+                console.log('⚡ 체인 라이트닝 시전!');
+                this.game.player.castChainLightning();
+                break;
+            default:
+                console.warn(`⚠️ 알 수 없는 버튼: ${buttonName}`);
+        }
+    }
+    
+    /**
+     * 게임 상태별 모바일 컨트롤 활성화
+     */
+    activateForGameState(gameState) {
+        if (!window.deviceDetector.isMobile()) return;
+        if (!this.overlay) return;
+        
+        if (gameState === 'playing') {
+            this.isActive = true;
+            this.overlay.classList.remove('hidden');
+            console.log('HTML 모바일 컨트롤 활성화: 게임 플레이 모드');
+        } else {
+            this.isActive = false;
+            this.overlay.classList.add('hidden');
+            this.resetJoystick();
+            console.log('HTML 모바일 컨트롤 비활성화: 메뉴 모드');
+        }
+    }
+    
+    /**
+     * 모바일 컨트롤 완전 비활성화
+     */
+    deactivate() {
+        this.isActive = false;
+        
+        if (this.overlay) {
+            this.overlay.classList.add('hidden');
+        }
+        
+        this.resetJoystick();
+        this.resetButtons();
+        
+        console.log('HTML 모바일 컨트롤 완전 비활성화');
+    }
+    
+    /**
+     * 조이스틱 상태 초기화
+     */
+    resetJoystick() {
+        this.joystick.isActive = false;
+        this.joystick.touchId = null;
+        
+        if (this.joystickKnob) {
+            this.joystickKnob.style.transform = 'translate(-50%, -50%)';
+        }
         
         // 플레이어 정지
         if (this.game.player) {
@@ -305,221 +373,82 @@ class MobileControls {
     }
     
     /**
-     * 플레이어 이동 업데이트
+     * 버튼 상태 초기화
      */
-    updatePlayerMovement() {
-        if (!this.game.player || !this.joystick.isActive) return;
-        
-        const dx = this.joystick.currentX - this.joystick.centerX;
-        const dy = this.joystick.currentY - this.joystick.centerY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        
-        if (distance > 5) { // 최소 이동 거리
-            const maxDistance = this.joystick.radius;
-            const normalizedDistance = Math.min(distance / maxDistance, 1);
-            
-            const angle = Math.atan2(dy, dx);
-            const speed = this.game.player.speed * normalizedDistance;
-            
-            this.game.player.vx = Math.cos(angle) * speed;
-            this.game.player.vy = Math.sin(angle) * speed;
-        } else {
-            this.game.player.vx = 0;
-            this.game.player.vy = 0;
-        }
+    resetButtons() {
+        Object.values(this.buttons).forEach(button => {
+            if (button) {
+                button.classList.remove('active');
+            }
+        });
     }
     
     /**
-     * 버튼 활성화
+     * 스킬 잠금 상태 업데이트
      */
-    activateButton(touchId, x, y) {
-        const buttonName = this.isPointInButton(x, y);
-        if (buttonName && !this.buttons[buttonName].isPressed) {
-            this.buttons[buttonName].isPressed = true;
-            this.buttons[buttonName].touchId = touchId;
-            this.handleButtonPress(buttonName);
+    updateSkillLocks(playerLevel) {
+        if (!window.deviceDetector.isMobile()) return;
+        
+        // 파이어볼 (레벨 3)
+        if (this.buttons.fireball) {
+            if (playerLevel >= 3) {
+                this.buttons.fireball.classList.remove('disabled');
+            } else {
+                this.buttons.fireball.classList.add('disabled');
+            }
         }
-    }
-    
-    /**
-     * 버튼 비활성화
-     */
-    deactivateButton(touchId) {
-        for (let buttonName in this.buttons) {
-            const button = this.buttons[buttonName];
-            if (button.isPressed && button.touchId === touchId) {
-                button.isPressed = false;
-                button.touchId = null;
-                this.handleButtonRelease(buttonName);
+        
+        // 체인 라이트닝 (레벨 5)
+        if (this.buttons.chainLightning) {
+            if (playerLevel >= 5) {
+                this.buttons.chainLightning.classList.remove('disabled');
+            } else {
+                this.buttons.chainLightning.classList.add('disabled');
             }
         }
     }
     
     /**
-     * 버튼 누름 처리
+     * 스킬 쿨다운 상태 업데이트
      */
-    handleButtonPress(buttonName) {
-        if (!this.game.player) return;
-        
-        switch (buttonName) {
-            case 'attack':
-                // 자동 공격은 이미 활성화되어 있음
-                break;
-            case 'dash':
-                this.game.player.dash();
-                break;
-            case 'fireball':
-                this.game.player.fireFireball();
-                break;
-            case 'chainLightning':
-                this.game.player.castChainLightning();
-                break;
-        }
-    }
-    
-    /**
-     * 버튼 놓음 처리
-     */
-    handleButtonRelease(buttonName) {
-        // 현재는 버튼 놓음에 대한 특별한 처리가 없음
-    }
-
-    /**
-     * 🔧 게임 상태별 모바일 컨트롤 활성화
-     */
-    activateForGameState(gameState) {
+    updateSkillCooldowns(skillCooldowns) {
         if (!window.deviceDetector.isMobile()) return;
-
-        if (gameState === 'playing') {
-            this.isActive = true;
-            console.log('모바일 컨트롤 활성화: 게임 플레이 모드');
-        } else {
-            this.isActive = false;
-            console.log('모바일 컨트롤 비활성화: 메뉴 모드');
-        }
-    }
-
-    /**
-     * 🔧 모바일 컨트롤 완전 비활성화
-     */
-    deactivate() {
-        this.isActive = false;
         
-        // 모든 터치 상태 초기화
-        this.joystick.isActive = false;
-        this.joystick.touchId = null;
-        this.joystick.currentX = this.joystick.centerX;
-        this.joystick.currentY = this.joystick.centerY;
-        
-        // 모든 버튼 상태 초기화
-        Object.values(this.buttons).forEach(button => {
-            button.isPressed = false;
-            button.touchId = null;
+        Object.entries(skillCooldowns).forEach(([skillName, isOnCooldown]) => {
+            let buttonName = skillName;
+            if (skillName === 'fireball') buttonName = 'fireball';
+            else if (skillName === 'chainLightning') buttonName = 'chainLightning';
+            
+            const button = this.buttons[buttonName];
+            if (button) {
+                if (isOnCooldown) {
+                    button.classList.add('cooldown');
+                } else {
+                    button.classList.remove('cooldown');
+                }
+            }
         });
-        
-        this.touches.clear();
-        console.log('모바일 컨트롤 완전 비활성화');
     }
     
     /**
-     * 모바일 컨트롤 렌더링
+     * 렌더링 (HTML 기반이므로 빈 메서드)
      */
     render() {
-        if (!this.isActive) return;
-        
-        this.ctx.save();
-        
-        // 조이스틱 렌더링
-        this.renderJoystick();
-        
-        // 버튼 렌더링
-        this.renderButtons();
-        
-        this.ctx.restore();
-    }
-    
-    /**
-     * 조이스틱 렌더링
-     */
-    renderJoystick() {
-        // 조이스틱 배경
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        this.ctx.beginPath();
-        this.ctx.arc(this.joystick.centerX, this.joystick.centerY, this.joystick.radius, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // 조이스틱 테두리
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-        this.ctx.lineWidth = 2;
-        this.ctx.stroke();
-        
-        // 조이스틱 노브
-        this.ctx.fillStyle = this.joystick.isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.7)';
-        this.ctx.beginPath();
-        this.ctx.arc(this.joystick.currentX, this.joystick.currentY, this.joystick.knobRadius, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        // 조이스틱 노브 테두리
-        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.lineWidth = 1;
-        this.ctx.stroke();
-    }
-    
-    /**
-     * 버튼 렌더링
-     */
-    renderButtons() {
-        for (let buttonName in this.buttons) {
-            const button = this.buttons[buttonName];
-            
-            // 버튼 배경
-            this.ctx.fillStyle = button.isPressed ? button.activeColor : button.color;
-            this.ctx.globalAlpha = 0.8;
-            this.ctx.beginPath();
-            this.ctx.arc(button.x, button.y, button.radius, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // 버튼 테두리
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
-            
-            // 버튼 아이콘
-            this.ctx.fillStyle = 'white';
-            this.ctx.font = '16px Arial';
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            
-            let icon = '';
-            switch (buttonName) {
-                case 'attack': icon = '⚔'; break;
-                case 'dash': icon = '💨'; break;
-                case 'fireball': icon = '🔥'; break;
-                case 'chainLightning': icon = '⚡'; break;
-            }
-            
-            this.ctx.fillText(icon, button.x, button.y);
-            this.ctx.globalAlpha = 1;
-        }
+        // HTML 요소를 사용하므로 별도의 렌더링이 필요하지 않음
+        // CSS와 HTML로 모든 시각적 표현이 처리됨
     }
     
     /**
      * 모바일 컨트롤 정리
      */
     destroy() {
-        if (!this.isActive) return;
+        console.log('HTML 모바일 컨트롤 정리 시작...');
         
-        // 이벤트 리스너 제거
-        this.canvas.removeEventListener('touchstart', this.handleTouchStart);
-        this.canvas.removeEventListener('touchmove', this.handleTouchMove);
-        this.canvas.removeEventListener('touchend', this.handleTouchEnd);
-        this.canvas.removeEventListener('touchcancel', this.handleTouchEnd);
+        this.deactivate();
         
-        document.removeEventListener('touchmove', this.preventScroll);
+        // 이벤트 리스너 제거는 필요시 구현
+        // (일반적으로 HTML 요소가 제거되면 자동으로 정리됨)
         
-        this.isActive = false;
-        this.touches.clear();
-        
-        console.log('모바일 터치 컨트롤이 비활성화되었습니다.');
+        console.log('HTML 모바일 컨트롤 정리 완료');
     }
 }

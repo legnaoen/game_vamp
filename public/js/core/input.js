@@ -142,7 +142,12 @@ class Input {
      * 터치 시작 이벤트 처리
      */
     handleTouchStart(e) {
-        // 🔧 게임 플레이 중에만 터치 이벤트 차단
+        // 🔧 게임 캔버스 터치는 MobileControls에서 처리하도록 제외
+        if (e.target && e.target.id === 'gameCanvas') {
+            return; // MobileControls가 처리하도록 함
+        }
+        
+        // 🔧 게임 플레이 중에만 터치 이벤트 차단 (메뉴/UI 터치만)
         if (this.gameState === 'playing') {
             e.preventDefault();
         }
@@ -153,24 +158,38 @@ class Input {
             this.touch.y = touch.clientY;
             this.touch.active = true;
         }
+        
+        console.log(`Input 터치 시작: target=${e.target?.id}, gameState=${this.gameState}`);
     }
     
     /**
      * 터치 종료 이벤트 처리
      */
     handleTouchEnd(e) {
-        // 🔧 게임 플레이 중에만 터치 이벤트 차단
+        // 🔧 게임 캔버스 터치는 MobileControls에서 처리하도록 제외
+        if (e.target && e.target.id === 'gameCanvas') {
+            return; // MobileControls가 처리하도록 함
+        }
+        
+        // 🔧 게임 플레이 중에만 터치 이벤트 차단 (메뉴/UI 터치만)
         if (this.gameState === 'playing') {
             e.preventDefault();
         }
         this.touch.active = false;
+        
+        console.log(`Input 터치 종료: target=${e.target?.id}, gameState=${this.gameState}`);
     }
     
     /**
      * 터치 이동 이벤트 처리
      */
     handleTouchMove(e) {
-        // 🔧 게임 플레이 중에만 터치 이벤트 차단
+        // 🔧 게임 캔버스 터치는 MobileControls에서 처리하도록 제외
+        if (e.target && e.target.id === 'gameCanvas') {
+            return; // MobileControls가 처리하도록 함
+        }
+        
+        // 🔧 게임 플레이 중에만 터치 이벤트 차단 (메뉴/UI 터치만)
         if (this.gameState === 'playing') {
             e.preventDefault();
         }

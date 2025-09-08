@@ -24,16 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function initGame() {
     try {
-        // 게임 인스턴스 생성
+        // 게임 인스턴스 생성 (모바일 컨트롤은 Game 클래스 내부에서 자동 초기화)
         game = new Game();
         
-        // 모바일 컨트롤 초기화 (안전한 타입 체크)
-        if (window.deviceDetector && 
-            typeof window.deviceDetector.isMobile === 'function' && 
-            window.deviceDetector.isMobile()) {
-            game.mobileControls = new MobileControls(game);
-            console.log('모바일 터치 컨트롤이 활성화되었습니다.');
-        }
+        // 🔧 글로벌 게임 참조 설정 (HUD에서 모바일 컨트롤 접근을 위해)
+        window.game = game;
         
         console.log('게임 초기화 완료!');
         console.log('게임 상태:', game.gameState);

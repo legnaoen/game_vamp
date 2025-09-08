@@ -103,6 +103,25 @@ class Game {
         
         // 게임 루프
         this.gameLoop = new GameLoop(this);
+        
+        // 🔧 모바일 컨트롤 초기화 (Game 클래스 내부에서 직접)
+        this.setupMobileControls();
+    }
+    
+    /**
+     * 🔧 모바일 컨트롤 설정
+     */
+    setupMobileControls() {
+        // 모바일 디바이스 체크
+        if (window.deviceDetector && 
+            typeof window.deviceDetector.isMobile === 'function' && 
+            window.deviceDetector.isMobile()) {
+            
+            this.mobileControls = new MobileControls(this);
+            console.log('Game 클래스에서 모바일 터치 컨트롤 초기화 완료');
+        } else {
+            console.log('데스크톱 디바이스 - 모바일 컨트롤 비활성화');
+        }
     }
     
     /**
@@ -567,10 +586,8 @@ class Game {
         // 화면 효과 복원
         this.restoreScreenEffects();
         
-        // 모바일 컨트롤 렌더링 (모바일에서만)
-        if (this.mobileControls && this.mobileControls.isActive) {
-            this.mobileControls.render();
-        }
+        // 🔧 HTML 기반 모바일 컨트롤은 별도 렌더링 불필요
+        // (HTML/CSS로 자동 처리되므로 render() 호출 제거)
     }
     
     /**

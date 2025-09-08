@@ -489,3 +489,256 @@ body {
         bottom: -15px;
     }
 }
+
+/* ========================================
+   🎮 HTML 기반 모바일 컨트롤 스타일
+   ======================================== */
+
+/* 모바일 컨트롤 오버레이 */
+.mobile-controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* 게임 화면 터치를 방해하지 않도록 */
+    z-index: 15; /* HUD 위에 표시 */
+}
+
+/* 게임 캔버스 컨테이너 */
+#gameCanvasContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 조이스틱 영역 */
+.joystick-area {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 120px;
+    height: 120px;
+    pointer-events: auto; /* 터치 이벤트 허용 */
+}
+
+.joystick-base {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(74, 144, 226, 0.3), rgba(74, 144, 226, 0.1));
+    border: 3px solid rgba(74, 144, 226, 0.6);
+    border-radius: 50%;
+    box-shadow: 
+        0 0 20px rgba(74, 144, 226, 0.4),
+        inset 0 0 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    user-select: none;
+}
+
+.joystick-knob {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(145deg, #4a90e2, #357abd);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(74, 144, 226, 0.5);
+    transition: all 0.1s ease;
+    cursor: pointer;
+}
+
+.joystick-knob:active {
+    transform: scale(0.9);
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(74, 144, 226, 0.7);
+}
+
+/* 버튼 영역 */
+.button-area {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 15px;
+    width: 140px;
+    height: 140px;
+    pointer-events: auto; /* 터치 이벤트 허용 */
+}
+
+/* 컨트롤 버튼 공통 스타일 */
+.control-btn {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #34495e, #2c3e50);
+    border: 2px solid rgba(74, 144, 226, 0.6);
+    color: white;
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    transition: all 0.2s ease;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(74, 144, 226, 0.3);
+}
+
+.control-btn:active {
+    transform: scale(0.9);
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(74, 144, 226, 0.6);
+}
+
+/* 버튼별 개별 스타일 */
+.attack-btn {
+    background: linear-gradient(145deg, #e74c3c, #c0392b);
+    border-color: rgba(231, 76, 60, 0.8);
+}
+
+.attack-btn:active {
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(231, 76, 60, 0.6);
+}
+
+.dash-btn {
+    background: linear-gradient(145deg, #2ed573, #27ae60);
+    border-color: rgba(46, 213, 115, 0.8);
+}
+
+.dash-btn:active {
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(46, 213, 115, 0.6);
+}
+
+.fireball-btn {
+    background: linear-gradient(145deg, #f39c12, #e67e22);
+    border-color: rgba(243, 156, 18, 0.8);
+}
+
+.fireball-btn:active {
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(243, 156, 18, 0.6);
+}
+
+.chain-btn {
+    background: linear-gradient(145deg, #9b59b6, #8e44ad);
+    border-color: rgba(155, 89, 182, 0.8);
+}
+
+.chain-btn:active {
+    box-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(155, 89, 182, 0.6);
+}
+
+/* 버튼 아이콘과 키 표시 */
+.btn-icon {
+    font-size: 20px;
+    line-height: 1;
+    margin-bottom: 2px;
+}
+
+.btn-key {
+    font-size: 10px;
+    font-weight: bold;
+    opacity: 0.8;
+    line-height: 1;
+}
+
+/* 비활성화된 버튼 (레벨 잠금) */
+.control-btn.disabled {
+    background: linear-gradient(145deg, #7f8c8d, #95a5a6) !important;
+    border-color: rgba(127, 140, 141, 0.6) !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.control-btn.disabled:active {
+    transform: none;
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        0 0 15px rgba(127, 140, 141, 0.3);
+}
+
+/* 쿨다운 중인 버튼 */
+.control-btn.cooldown {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.control-btn.cooldown::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+/* 모바일에서만 표시 */
+@media (max-width: 768px) {
+    .mobile-controls.hidden {
+        display: none !important;
+    }
+    
+    .mobile-controls:not(.hidden) {
+        display: block;
+    }
+    
+    /* 캔버스 크기 조정 - 컨트롤 영역 확보 */
+    #gameCanvas {
+        width: 90%;
+        height: auto;
+        max-height: 70vh; /* 80vh → 70vh로 줄여서 하단 여유 공간 확보 */
+        touch-action: none;
+    }
+    
+    /* 모바일 UI 조정 */
+    #gameUI {
+        top: 5px;
+        left: 5px;
+        right: 5px;
+    }
+    
+    .ui-element {
+        min-width: 120px;
+        padding: 5px 8px;
+        margin-bottom: 3px;
+    }
+    
+    .ui-element span {
+        font-size: 0.7rem;
+    }
+}
+
+/* 데스크톱에서는 모바일 컨트롤 숨김 */
+@media (min-width: 769px) {
+    .mobile-controls {
+        display: none !important;
+    }
+}
