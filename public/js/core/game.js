@@ -164,6 +164,16 @@ class Game {
         this.gameTime = 0;
         this.lastTime = performance.now();
         
+        // 🔧 입력 시스템 상태 업데이트
+        if (this.input) {
+            this.input.updateGameState('playing');
+        }
+        
+        // 🔧 모바일 컨트롤 상태 업데이트
+        if (this.mobileControls) {
+            this.mobileControls.activateForGameState('playing');
+        }
+        
         // 플레이어 생성
         this.player = new Player(
             this.config.canvasWidth / 2,
@@ -203,6 +213,17 @@ class Game {
     pauseGame() {
         if (this.gameState === 'playing') {
             this.gameState = 'paused';
+            
+            // 🔧 입력 시스템 상태 업데이트
+            if (this.input) {
+                this.input.updateGameState('paused');
+            }
+            
+            // 🔧 모바일 컨트롤 상태 업데이트
+            if (this.mobileControls) {
+                this.mobileControls.activateForGameState('paused');
+            }
+            
             this.menu.showPauseMenu();
         }
     }
@@ -213,6 +234,17 @@ class Game {
     resumeGame() {
         if (this.gameState === 'paused') {
             this.gameState = 'playing';
+            
+            // 🔧 입력 시스템 상태 업데이트
+            if (this.input) {
+                this.input.updateGameState('playing');
+            }
+            
+            // 🔧 모바일 컨트롤 상태 업데이트
+            if (this.mobileControls) {
+                this.mobileControls.activateForGameState('playing');
+            }
+            
             this.menu.hidePauseMenu();
         }
     }
@@ -230,6 +262,17 @@ class Game {
     quitToMenu() {
         this.gameState = 'menu';
         this.gameLoop.stop();
+        
+        // 🔧 입력 시스템 상태 업데이트
+        if (this.input) {
+            this.input.updateGameState('menu');
+        }
+        
+        // 🔧 모바일 컨트롤 상태 업데이트
+        if (this.mobileControls) {
+            this.mobileControls.activateForGameState('menu');
+        }
+        
         this.menu.hideAll();
         this.menu.showMainMenu();
     }
@@ -240,6 +283,16 @@ class Game {
     gameOver() {
         this.gameState = 'gameOver';
         this.gameLoop.stop();
+        
+        // 🔧 입력 시스템 상태 업데이트
+        if (this.input) {
+            this.input.updateGameState('gameOver');
+        }
+        
+        // 🔧 모바일 컨트롤 상태 업데이트
+        if (this.mobileControls) {
+            this.mobileControls.activateForGameState('gameOver');
+        }
         
         // 최종 통계 계산
         const finalStats = this.calculateFinalStats();
@@ -270,6 +323,17 @@ class Game {
      */
     showMainMenu() {
         this.gameState = 'menu';
+        
+        // 🔧 입력 시스템 상태 업데이트
+        if (this.input) {
+            this.input.updateGameState('menu');
+        }
+        
+        // 🔧 모바일 컨트롤 상태 업데이트
+        if (this.mobileControls) {
+            this.mobileControls.activateForGameState('menu');
+        }
+        
         this.menu.hideAll();
         this.menu.showMainMenu();
     }

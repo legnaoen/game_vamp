@@ -66,6 +66,8 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    /* 🔧 모바일에서 버튼 터치 허용 */
+    touch-action: manipulation;
 }
 
 .btn:hover {
@@ -252,7 +254,7 @@ body {
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     body {
-        touch-action: none; /* 모바일에서 스크롤 방지 */
+        /* 🔧 전역 터치 차단 제거 - 메뉴 버튼 터치를 위해 */
         -webkit-user-select: none; /* 텍스트 선택 방지 */
         -moz-user-select: none;
         -ms-user-select: none;
@@ -276,7 +278,7 @@ body {
         width: 95%;
         height: auto;
         max-height: 80vh;
-        touch-action: none; /* 캔버스에서 터치 이벤트만 허용 */
+        touch-action: none; /* 🔧 게임 캔버스에서만 터치 차단 */
     }
     
     .ui-element {

@@ -224,10 +224,11 @@ class MobileControls {
     }
     
     /**
-     * 스크롤 방지
+     * 스크롤 방지 (게임 플레이 중에만)
      */
     preventScroll(event) {
-        if (this.isActive) {
+        // 🔧 게임 플레이 중에만 스크롤 방지
+        if (this.isActive && this.game && this.game.gameState === 'playing') {
             event.preventDefault();
         }
     }
@@ -381,6 +382,43 @@ class MobileControls {
      */
     handleButtonRelease(buttonName) {
         // 현재는 버튼 놓음에 대한 특별한 처리가 없음
+    }
+
+    /**
+     * 🔧 게임 상태별 모바일 컨트롤 활성화
+     */
+    activateForGameState(gameState) {
+        if (!window.deviceDetector.isMobile()) return;
+
+        if (gameState === 'playing') {
+            this.isActive = true;
+            console.log('모바일 컨트롤 활성화: 게임 플레이 모드');
+        } else {
+            this.isActive = false;
+            console.log('모바일 컨트롤 비활성화: 메뉴 모드');
+        }
+    }
+
+    /**
+     * 🔧 모바일 컨트롤 완전 비활성화
+     */
+    deactivate() {
+        this.isActive = false;
+        
+        // 모든 터치 상태 초기화
+        this.joystick.isActive = false;
+        this.joystick.touchId = null;
+        this.joystick.currentX = this.joystick.centerX;
+        this.joystick.currentY = this.joystick.centerY;
+        
+        // 모든 버튼 상태 초기화
+        Object.values(this.buttons).forEach(button => {
+            button.isPressed = false;
+            button.touchId = null;
+        });
+        
+        this.touches.clear();
+        console.log('모바일 컨트롤 완전 비활성화');
     }
     
     /**

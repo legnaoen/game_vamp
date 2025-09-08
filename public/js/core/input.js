@@ -4,6 +4,9 @@
  */
 class Input {
     constructor() {
+        // 🔧 게임 상태 참조 (터치 이벤트 조건부 처리용)
+        this.gameState = 'menu';
+        
         // 키보드 상태
         this.keys = {
             w: false,
@@ -139,7 +142,10 @@ class Input {
      * 터치 시작 이벤트 처리
      */
     handleTouchStart(e) {
-        e.preventDefault();
+        // 🔧 게임 플레이 중에만 터치 이벤트 차단
+        if (this.gameState === 'playing') {
+            e.preventDefault();
+        }
         
         if (e.touches.length > 0) {
             const touch = e.touches[0];
@@ -153,7 +159,10 @@ class Input {
      * 터치 종료 이벤트 처리
      */
     handleTouchEnd(e) {
-        e.preventDefault();
+        // 🔧 게임 플레이 중에만 터치 이벤트 차단
+        if (this.gameState === 'playing') {
+            e.preventDefault();
+        }
         this.touch.active = false;
     }
     
@@ -161,7 +170,10 @@ class Input {
      * 터치 이동 이벤트 처리
      */
     handleTouchMove(e) {
-        e.preventDefault();
+        // 🔧 게임 플레이 중에만 터치 이벤트 차단
+        if (this.gameState === 'playing') {
+            e.preventDefault();
+        }
         
         if (e.touches.length > 0) {
             const touch = e.touches[0];
@@ -270,6 +282,14 @@ class Input {
         return { x: this.touch.x, y: this.touch.y };
     }
     
+    /**
+     * 🔧 게임 상태 업데이트 (터치 이벤트 조건부 처리용)
+     */
+    updateGameState(gameState) {
+        this.gameState = gameState;
+        console.log(`Input 게임 상태 업데이트: ${gameState}`);
+    }
+
     /**
      * 모든 입력 상태 리셋
      */
