@@ -273,13 +273,20 @@ body {
         font-size: 1.5rem;
     }
     
-    /* 🔧 간단한 간격 조정만 */
+    /* 🔧 게임 캔버스 절대 위치 설정 */
+    #gameScreen {
+        align-items: flex-start !important; /* flexbox 중앙 정렬 비활성화 */
+    }
+    
     #gameCanvas {
+        position: absolute !important;
+        top: 155px !important; /* HUD 아래 155px 위치에 고정 */
+        left: 50% !important;
+        transform: translateX(-50%) !important; /* 수평 중앙 정렬 */
         width: 95%;
         height: auto;
         max-height: 55vh; /* 캔버스 높이만 줄임 */
         touch-action: none;
-        margin-top: -60px; /* 캔버스를 60px 위로 이동 (-40px → -60px, 20px 더 위로) */
     }
     
     /* HUD 위치 - 기본 absolute 유지하되 간격 조정 */
@@ -323,29 +330,29 @@ body {
         display: block;
     }
     
-    /* 조이스틱 영역 - 20px 더 위로 이동 */
+    /* 조이스틱 영역 - 20px 위로 이동 */
     .joystick-area {
-        bottom: 120px !important; /* 140px → 120px (20px 아래로) */
+        bottom: 140px !important; /* 120px → 140px (20px 위로) */
         left: 20px !important;
-        width: 90px !important;
-        height: 90px !important;
+        width: 135px !important; /* 90px → 135px (50% 확대) */
+        height: 135px !important; /* 90px → 135px (50% 확대) */
     }
     
-    /* 버튼 영역 - 조이스틱과 중앙 정렬 */
+    /* 버튼 영역 - 조이스틱과 중앙 정렬 유지하며 20px 위로 이동 */
     .button-area {
-        bottom: 140px !important; /* 120px → 140px (조이스틱 중앙과 정렬) */
+        bottom: 177px !important; /* 157px → 177px (20px 위로) */
         right: 20px !important;
         display: flex !important;
         flex-direction: row !important;
-        width: 120px !important;
-        height: 50px !important;
-        gap: 10px !important;
+        width: 152px !important; /* 240px의 60% ≈ 144px + gap 조정 */
+        height: 60px !important; /* 100px의 60% = 60px */
+        gap: 12px !important; /* 20px의 60% = 12px */
     }
     
-    /* 컨트롤 버튼 크기 원래대로 */
+    /* 컨트롤 버튼 크기 60%로 조정 */
     .control-btn {
-        width: 50px !important;
-        height: 50px !important;
+        width: 60px !important; /* 100px의 60% = 60px */
+        height: 60px !important; /* 100px의 60% = 60px */
     }
     
     /* 스킬 쿨다운 UI 컴팩트화 */
