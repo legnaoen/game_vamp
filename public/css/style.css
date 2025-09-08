@@ -249,13 +249,12 @@ body {
     #mobileControls {
         display: block;
     }
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
+    
+    /* ===== 🔧 모바일 전용 컴팩트 레이아웃 통합 ===== */
+    
     body {
-        /* 🔧 전역 터치 차단 제거 - 메뉴 버튼 터치를 위해 */
-        -webkit-user-select: none; /* 텍스트 선택 방지 */
+        /* 전역 터치 차단 제거 - 메뉴 버튼 터치를 위해 */
+        -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
@@ -274,33 +273,101 @@ body {
         font-size: 1.5rem;
     }
     
+    /* 🔧 간단한 간격 조정만 */
     #gameCanvas {
         width: 95%;
         height: auto;
-        max-height: 80vh;
-        touch-action: none; /* 🔧 게임 캔버스에서만 터치 차단 */
+        max-height: 55vh; /* 캔버스 높이만 줄임 */
+        touch-action: none;
+        margin-top: -40px; /* 캔버스를 40px 위로 이동 (-20px → -40px) */
     }
     
+    /* HUD 위치 - 기본 absolute 유지하되 간격 조정 */
+    #gameUI {
+        top: 5px;
+        left: 5px;
+        right: 5px;
+    }
+    
+    /* 컴팩트 UI 설정 */
     .ui-element {
-        min-width: 150px;
-        padding: 8px;
+        min-width: 100px;
+        padding: 3px 6px;
+        margin-bottom: 2px;
     }
     
     .ui-element span {
-        font-size: 0.8rem;
+        font-size: 0.65rem;
     }
     
-    /* 모바일에서 UI 위치 조정 */
-    #gameUI {
-        top: 10px;
-        left: 10px;
+    /* 바 높이 축소 */
+    .bar {
+        height: 16px;
     }
     
-    .ui-element {
-        margin-bottom: 5px;
-        padding: 6px;
+    /* 모바일 컨트롤 표시 설정 */
+    .mobile-controls.hidden {
+        display: none !important;
+    }
+    
+    .mobile-controls:not(.hidden) {
+        display: block;
+    }
+    
+    /* 모바일 컨트롤 표시 */
+    .mobile-controls.hidden {
+        display: none !important;
+    }
+    
+    .mobile-controls:not(.hidden) {
+        display: block;
+    }
+    
+    /* 조이스틱 영역 - 20px 더 위로 이동 */
+    .joystick-area {
+        bottom: 100px !important; /* 80px → 100px (20px 더 위로) */
+        left: 20px !important;
+        width: 90px !important;
+        height: 90px !important;
+    }
+    
+    /* 버튼 영역 - 20px 더 위로 이동 */
+    .button-area {
+        bottom: 100px !important; /* 80px → 100px (20px 더 위로) */
+        right: 20px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        width: 120px !important;
+        height: 50px !important;
+        gap: 10px !important;
+    }
+    
+    /* 컨트롤 버튼 크기 원래대로 */
+    .control-btn {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    
+    /* 스킬 쿨다운 UI 컴팩트화 */
+    .skills-container {
+        gap: 4px;
+    }
+    
+    .skill-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .skill-key {
+        font-size: 8px;
+    }
+    
+    .cooldown-text {
+        font-size: 6px;
+        bottom: -12px;
     }
 }
+
 
 /* 애니메이션 */
 @keyframes pulse {
@@ -470,39 +537,21 @@ body {
 }
 
 /* 모바일 대응 */
-@media (max-width: 800px) {
-    .skills-container {
-        gap: 6px;
-    }
-    
-    .skill-icon {
-        width: 25px;
-        height: 25px;
-    }
-    
-    .skill-key {
-        font-size: 10px;
-    }
-    
-    .cooldown-text {
-        font-size: 7px;
-        bottom: -15px;
-    }
-}
 
 /* ========================================
    🎮 HTML 기반 모바일 컨트롤 스타일
    ======================================== */
 
-/* 모바일 컨트롤 오버레이 */
+/* 모바일 컨트롤 오버레이 - 기본값 (모바일에서 덮어씀) */
 .mobile-controls {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* 게임 화면 터치를 방해하지 않도록 */
-    z-index: 15; /* HUD 위에 표시 */
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 15;
+    display: none; /* 기본적으로 숨김 */
 }
 
 /* 게임 캔버스 컨테이너 */
@@ -515,13 +564,13 @@ body {
     align-items: center;
 }
 
-/* 조이스틱 영역 */
+/* 조이스틱 영역 - 기본값 (데스크톱용) */
 .joystick-area {
     position: absolute;
-    bottom: 15px; /* 30px → 15px로 줄여서 더 위로 */
-    left: 15px;   /* 30px → 15px로 줄여서 더 안쪽으로 */
-    width: 100px; /* 120px → 100px로 축소 */
-    height: 100px; /* 120px → 100px로 축소 */
+    bottom: 30px;
+    left: 30px;
+    width: 120px;
+    height: 120px;
     pointer-events: auto; /* 터치 이벤트 허용 */
 }
 
@@ -563,25 +612,24 @@ body {
         0 0 20px rgba(74, 144, 226, 0.7);
 }
 
-/* 버튼 영역 */
+/* 버튼 영역 - 기본값 (데스크톱용) */
 .button-area {
     position: absolute;
-    bottom: 15px; /* 30px → 15px로 줄여서 더 위로 */
-    right: 15px;  /* 30px → 15px로 줄여서 더 안쪽으로 */
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 12px;    /* 15px → 12px로 축소 */
-    width: 120px; /* 140px → 120px로 축소 */
-    height: 120px; /* 140px → 120px로 축소 */
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    width: 135px;
+    height: 60px;
     pointer-events: auto; /* 터치 이벤트 허용 */
 }
 
-/* 컨트롤 버튼 공통 스타일 */
+/* 컨트롤 버튼 공통 스타일 - 기본값 (데스크톱용) */
 .control-btn {
     position: relative;
-    width: 50px;  /* 60px → 50px로 축소 */
-    height: 50px; /* 60px → 50px로 축소 */
+    width: 60px;
+    height: 60px;
     border: none;
     border-radius: 50%;
     background: linear-gradient(145deg, #34495e, #2c3e50);
@@ -667,6 +715,22 @@ body {
     line-height: 1;
 }
 
+/* 🆕 모바일 파이어볼 자동 라벨 */
+.btn-auto-label {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: #2ed573;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 6px;
+    line-height: 1;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
 /* 비활성화된 버튼 (레벨 잠금) */
 .control-btn.disabled {
     background: linear-gradient(145deg, #7f8c8d, #95a5a6) !important;
@@ -700,65 +764,6 @@ body {
     z-index: 1;
 }
 
-/* 모바일에서만 표시 */
-@media (max-width: 768px) {
-    .mobile-controls.hidden {
-        display: none !important;
-    }
-    
-    .mobile-controls:not(.hidden) {
-        display: block;
-    }
-    
-    /* 캔버스 크기 조정 - 컨트롤 영역 확보 */
-    #gameCanvas {
-        width: 95%;
-        height: auto;
-        max-height: 60vh; /* 70vh → 60vh로 더 줄여서 컨트롤 공간 확보 */
-        touch-action: none;
-    }
-    
-    /* 모바일 UI 조정 - 더 컴팩트하게 */
-    #gameUI {
-        top: 3px;    /* 5px → 3px */
-        left: 3px;   /* 5px → 3px */
-        right: 3px;  /* 5px → 3px */
-    }
-    
-    .ui-element {
-        min-width: 100px;  /* 120px → 100px */
-        padding: 3px 6px;  /* 5px 8px → 3px 6px */
-        margin-bottom: 2px; /* 3px → 2px */
-    }
-    
-    .ui-element span {
-        font-size: 0.65rem; /* 0.7rem → 0.65rem */
-    }
-    
-    /* 스킬 쿨다운 UI도 더 컴팩트하게 */
-    .skills-container {
-        gap: 4px; /* 기본 8px → 4px */
-    }
-    
-    .skill-icon {
-        width: 20px;  /* 25px → 20px (모바일) */
-        height: 20px; /* 25px → 20px (모바일) */
-    }
-    
-    .skill-key {
-        font-size: 8px; /* 10px → 8px */
-    }
-    
-    .cooldown-text {
-        font-size: 6px;  /* 7px → 6px */
-        bottom: -12px;   /* -15px → -12px */
-    }
-    
-    /* 바 높이도 축소 */
-    .bar {
-        height: 16px; /* 20px → 16px */
-    }
-}
 
 /* 데스크톱에서는 모바일 컨트롤 숨김 */
 @media (min-width: 769px) {

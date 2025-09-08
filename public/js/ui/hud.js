@@ -480,7 +480,7 @@ class HUD {
         notification.textContent = `${effectNames[itemType] || itemType} +${value}`;
         notification.style.cssText = `
             position: fixed;
-            bottom: 100px;
+            top: 100px;
             right: 20px;
             background: rgba(0, 0, 0, 0.8);
             color: #2ed573;

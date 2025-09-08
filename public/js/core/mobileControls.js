@@ -14,7 +14,7 @@ class MobileControls {
         this.joystickKnob = null;
         this.buttons = {};
         
-        // 조이스틱 상태 (🔧 컴팩트 레이아웃에 맞춰 크기 조정)
+        // 조이스틱 상태 (🔧 더 컴팩트한 레이아웃에 맞춰 크기 조정)
         this.joystick = {
             isActive: false,
             touchId: null,
@@ -22,7 +22,7 @@ class MobileControls {
             centerY: 0,
             currentX: 0,
             currentY: 0,
-            maxRadius: 50, // 조이스틱 이동 가능 반경 (60 → 50)
+            maxRadius: 40, // 조이스틱 이동 가능 반경 (50 → 40, 90px 조이스틱에 맞춤)
             startX: 0,
             startY: 0
         };
@@ -307,8 +307,9 @@ class MobileControls {
                 this.game.player.dash();
                 break;
             case 'fireball':
-                console.log('🔥 파이어볼 발사!');
-                this.game.player.fireFireball();
+                console.log('🔥 파이어볼 버튼 터치 (모바일에서는 자동 발사됨)');
+                // 모바일에서는 파이어볼이 자동 발사되므로 수동 발사는 비활성화
+                // 버튼은 쿨다운 표시 목적으로만 사용
                 break;
             case 'chainLightning':
                 console.log('⚡ 체인 라이트닝 시전!');

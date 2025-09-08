@@ -33,39 +33,7 @@
 
         <!-- 게임 화면 -->
         <div id="gameScreen" class="hidden">
-            <!-- 게임 캔버스 -->
-            <div id="gameCanvasContainer">
-                <canvas id="gameCanvas" width="800" height="600"></canvas>
-            </div>
-            
-            <!-- 모바일 컨트롤 (HTML 기반) -->
-            <div id="mobileControlsOverlay" class="mobile-controls hidden">
-                <!-- 조이스틱 영역 -->
-                <div class="joystick-area">
-                    <div class="joystick-base" id="joystickBase">
-                        <div class="joystick-knob" id="joystickKnob"></div>
-                    </div>
-                </div>
-                
-                <!-- 버튼 영역 -->
-                <div class="button-area">
-                    <button class="control-btn attack-btn" id="attackBtn" data-action="attack">
-                        <span class="btn-icon">⚔️</span>
-                    </button>
-                    <button class="control-btn dash-btn" id="dashBtn" data-action="dash">
-                        <span class="btn-icon">💨</span>
-                    </button>
-                    <button class="control-btn fireball-btn" id="fireballBtn" data-action="fireball">
-                        <span class="btn-icon">🔥</span>
-                        <span class="btn-key">E</span>
-                    </button>
-                    <button class="control-btn chain-btn" id="chainBtn" data-action="chainLightning">
-                        <span class="btn-icon">⚡</span>
-                        <span class="btn-key">R</span>
-                    </button>
-                </div>
-            </div>
-            
+            <!-- 🔧 1. HUD를 맨 위로 이동 -->
             <!-- 게임 내 UI -->
             <div id="gameUI">
                 <div id="healthBar" class="ui-element">
@@ -115,6 +83,32 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- 🔧 2. 게임 캔버스를 HUD 다음에 배치 -->
+            <div id="gameCanvasContainer">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+            </div>
+            
+            <!-- 🔧 3. 모바일 컨트롤은 position: fixed로 별도 배치 -->
+            <div id="mobileControlsOverlay" class="mobile-controls hidden">
+                <!-- 조이스틱 영역 -->
+                <div class="joystick-area">
+                    <div class="joystick-base" id="joystickBase">
+                        <div class="joystick-knob" id="joystickKnob"></div>
+                    </div>
+                </div>
+                
+                <!-- 버튼 영역 -->
+                <div class="button-area">
+                    <button class="control-btn chain-btn" id="chainBtn" data-action="chainLightning">
+                        <span class="btn-icon">⚡</span>
+                        <span class="btn-key">R</span>
+                    </button>
+                    <button class="control-btn dash-btn" id="dashBtn" data-action="dash">
+                        <span class="btn-icon">💨</span>
+                    </button>
                 </div>
             </div>
 

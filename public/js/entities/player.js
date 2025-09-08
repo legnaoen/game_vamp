@@ -565,7 +565,11 @@ class Player {
             this.handleAutoMagicArrow();
         }
         
-        // 3레벨: 파이어볼은 수동 발사 (E키)
+        // 3레벨: 파이어볼 - 모바일에서만 자동 발사, 데스크톱에서는 수동 발사 (E키)
+        if (skills.fireball && window.deviceDetector && window.deviceDetector.isMobile()) {
+            this.handleAutoFireball();
+        }
+        
         // 5레벨: 체인라이트닝은 수동 발사 (R키)
     }
     
@@ -581,6 +585,25 @@ class Player {
             if (enemiesInRange.length > 0) {
                 // 매직애로우 자동 발사
                 this.handleMagicArrow();
+            }
+        }
+    }
+    
+    /**
+     * 🆕 파이어볼 자동 발사 처리 (모바일 전용)
+     */
+    handleAutoFireball() {
+        const magic = this.magicSystem.fireball;
+        
+        if (magic.cooldown <= 0) {
+            // 🆕 파이어볼 공격 범위 계산
+            const fireballRange = this.getCurrentAttackRange() * magic.range;
+            
+            // 🆕 파이어볼 범위 내에서 가장 가까운 적을 자동으로 찾기
+            const enemiesInFireballRange = this.getEnemiesInSpecificRange(fireballRange);
+            if (enemiesInFireballRange.length > 0) {
+                console.log(`📱 모바일 파이어볼 자동 발사: ${enemiesInFireballRange.length}마리 적 탐지`);
+                this.fireFireball();
             }
         }
     }
